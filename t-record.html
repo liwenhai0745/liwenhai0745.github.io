@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>做T记录管理</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            background-color: #f5f5f5;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 18px;
+        }
+        .buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            min-width: 120px;
+        }
+        .add-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .save-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+        }
+        .edit-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+            margin-right: 5px;
+        }
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+            margin-right: 5px;
+        }
+        .refresh-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .modal-footer button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+            margin-right: 10px;
+        }
+        .close-btn {
+            background-color: #999;
+            color: white;
+        }
+        table {
+            width: 100%;
+            min-width: 1070px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        th:nth-child(1), td:nth-child(1) { width: 120px; }
+        th:nth-child(3), td:nth-child(3) { width: 90px; }
+        th:nth-child(4), td:nth-child(4) { width: 120px; }
+        th:nth-child(5), td:nth-child(5) { width: 100px; }
+        th:nth-child(6), td:nth-child(6) { width: 100px; }
+        th:nth-child(7), td:nth-child(7) { width: 100px; }
+        th:nth-child(8), td:nth-child(8) { width: 100px; }
+        th:nth-child(9), td:nth-child(9) { width: 100px; }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:nth-child(3n+2) {
+            background-color: #ffe6e6;
+        }
+        tr:nth-child(3n+3) {
+            background-color: #e6ffe6;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .profit-negative {
+            color: red;
+        }
+        .profit-positive {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <h1>做T记录管理</h1>
+        <div class="buttons">
+            <button class="add-btn" @click="addRecord">添加记录</button>
+            <button class="save-btn" @click="saveToLocalStorage">保存到LocalStorage</button>
+            <button class="refresh-btn" @click="refreshLatestPrices">刷新最新价</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>股票名称</th>
+                        <th style="display: none;">股票代码</th>
+                        <th>T类型</th>
+                        <th>浮盈</th>
+                        <th>目标盈利</th>
+                        <th>目标价格</th>
+                        <th>B时间</th>
+                        <th>成交价格</th>
+                        <th>操作数量</th>
+                        <th>当前价</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(record, index) in records" :key="index">
+                        <td><input v-model="record.stockName" /></td>
+                        <td style="display: none;"><input v-model="record.stockCode" @input="getStockPrice(record)" /></td>
+                        <td>
+                            <select v-model="record.tType" @change="calculateFloatProfit(record)">
+                                <option value="">请选择</option>
+                                <option value="正T">正T</option>
+                                <option value="反T">反T</option>
+                            </select>
+                        </td>
+                        <td :class="record.floatProfit > 0.1 ? 'profit-negative' : 'profit-positive'">
+                            {{ record.floatProfit }}
+                        </td>
+                        <td><input v-model.number="record.targetProfit" type="number" @input="calculateTargetPrice(record)" /></td>
+                        <td>{{ record.targetPrice }}</td>
+                        <td><input type="date" v-model="record.bTime" /></td>
+                        <td><input v-model.number="record.price" @input="calculateFloatProfit(record); calculateTargetPrice(record)" /></td>
+                        <td><input v-model.number="record.quantity" @input="calculateFloatProfit(record); calculateTargetPrice(record)" /></td>
+                        <td>{{ record.currentPrice }}</td>
+                        <td>
+                            <button class="edit-btn" @click="editRecord(record)">编辑</button>
+                            <button class="copy-btn" @click="copyRecord(record, index)">复制</button>
+                            <button class="delete-btn" @click="deleteRecord(index)">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 编辑弹窗 -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>编辑记录</h2>
+                </div>
+                <div class="form-group">
+                    <label for="stockCode">股票代码</label>
+                    <input type="text" v-model="editRecordData.stockCode" @input="getStockPriceFromModal" />
+                </div>
+                <div class="modal-footer">
+                    <button class="save-btn" @click="saveEdit">保存</button>
+                    <button class="close-btn" @click="closeModal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                priceTimer: null,
+                refreshTimer: null,
+                editRecordData: {
+                    stockCode: ''
+                },
+                currentRecord: null,
+                records: [
+                    
+                    {
+                        stockName: '赢时胜',
+                        stockCode: '',
+                        tType: '',
+                        bTime: '2026-03-27',
+                        price: 18.4,
+                        quantity: 600,
+                        currentPrice: 16.02,
+                        floatProfit: -840,
+                        targetProfit: 100,
+                        targetPrice: 0
+                    }
+                ]
+            },
+            methods: {
+                addRecord() {
+                    this.records.push({
+                        stockName: '',
+                        stockCode: '',
+                        tType: '',
+                        bTime: '',
+                        price: 0,
+                        quantity: 0,
+                        currentPrice: 0,
+                        floatProfit: 0,
+                        targetProfit: 100,
+                        targetPrice: 0
+                    });
+                },
+                calculateFloatProfit(record) {
+                    if (record.currentPrice && record.price && record.quantity && !isNaN(record.currentPrice) && !isNaN(record.price) && !isNaN(record.quantity)) {
+                        let profit = parseFloat(((record.currentPrice - record.price) * record.quantity).toFixed(2));
+                        // 如果是反T，将计算结果乘以-1
+                        if (record.tType === '反T') {
+                            profit = profit * -1;
+                        }
+                        record.floatProfit = profit;
+                    } else {
+                        record.floatProfit = 0;
+                    }
+                },
+                calculateTargetPrice(record) {
+                    if (record.targetProfit && record.quantity && record.price && !isNaN(record.targetProfit) && !isNaN(record.quantity) && !isNaN(record.price) && record.quantity > 0) {
+                        if (record.tType === '正T') {
+                            // 正T: 目标盈利 = (目标价格 - 成交价格) × 操作数量
+                            // 目标价格 = (目标盈利 ÷ 操作数量) + 成交价格
+                            record.targetPrice = parseFloat(((record.targetProfit / record.quantity) + record.price).toFixed(2));
+                        } else if (record.tType === '反T') {
+                            // 反T: 目标盈利 = (成交价格 - 目标价格) × 操作数量
+                            // 目标价格 = 成交价格 - (目标盈利 ÷ 操作数量)
+                            record.targetPrice = parseFloat((record.price - (record.targetProfit / record.quantity)).toFixed(2));
+                        }
+                    }
+                },
+                getStockPrice(record) {
+                    const stockCode = record.stockCode;
+                    if (!stockCode) return;
+                    
+                    // 防抖处理，避免频繁请求
+                    clearTimeout(this.priceTimer);
+                    this.priceTimer = setTimeout(() => {
+                        // 确保股票代码格式正确
+                        let code = stockCode;
+                        if (!code.startsWith('sz') && !code.startsWith('sh')) {
+                            code = 'sz' + code; // 默认使用深圳市场
+                        }
+                        
+                        fetch(`https://qt.gtimg.cn/q=${code}`)
+                            .then(response => response.text())
+                            .then(data => {
+                                // 解析返回的数据
+                                const match = data.match(/v_(\w+)="([^"]+)"/);
+                                if (match && match[2]) {
+                                    const stockData = match[2].split('~');
+                                    if (stockData.length > 3) {
+                                        // 使用Vue的set方法确保响应式更新
+                                        this.$set(record, 'currentPrice', parseFloat(stockData[3]));
+                                        // 计算浮盈
+                                        this.calculateFloatProfit(record);
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('获取股票价格失败:', error);
+                            });
+                    }, 300);
+                },
+                saveToLocalStorage() {
+                    localStorage.setItem('tRecords', JSON.stringify(this.records));
+                    alert('数据已保存到LocalStorage');
+                },
+                loadFromLocalStorage() {
+                    const saved = localStorage.getItem('tRecords');
+                    if (saved) {
+                        this.records = JSON.parse(saved);
+                    }
+                },
+                deleteRecord(index) {
+                    if (confirm('确定要删除这条记录吗？')) {
+                        this.records.splice(index, 1);
+                    }
+                },
+                editRecord(record) {
+                    // 保存当前编辑的记录
+                    this.currentRecord = record;
+                    // 复制记录数据到编辑数据
+                    this.editRecordData.stockCode = record.stockCode || '';
+                    // 显示弹窗
+                    document.getElementById('editModal').style.display = 'block';
+                },
+                copyRecord(record, index) {
+                    // 创建新记录，复制股票名称和股票代码
+                    const newRecord = {
+                        stockName: record.stockName,
+                        stockCode: record.stockCode,
+                        tType: '',
+                        bTime: '',
+                        price: 0,
+                        quantity: 0,
+                        currentPrice: 0,
+                        floatProfit: 0,
+                        targetProfit: 100,
+                        targetPrice: 0
+                    };
+                    // 在当前索引后插入新记录
+                    this.records.splice(index + 1, 0, newRecord);
+                },
+                saveEdit() {
+                    if (this.currentRecord) {
+                        // 更新记录数据
+                        this.currentRecord.stockCode = this.editRecordData.stockCode;
+                        // 关闭弹窗
+                        this.closeModal();
+                    }
+                },
+                closeModal() {
+                    // 清空编辑数据
+                    this.editRecordData.stockCode = '';
+                    this.currentRecord = null;
+                    // 隐藏弹窗
+                    document.getElementById('editModal').style.display = 'none';
+                },
+                getStockPriceFromModal() {
+                    if (this.currentRecord) {
+                        this.currentRecord.stockCode = this.editRecordData.stockCode;
+                        this.getStockPrice(this.currentRecord);
+                    }
+                },
+                refreshLatestPrices() {
+                    // 收集唯一的股票代码
+                    const uniqueStockCodes = new Set();
+                    const recordsByCode = {};
+                    
+                    // 遍历记录，按股票代码分组
+                    this.records.forEach((record, index) => {
+                        if (record.stockCode) {
+                            if (!recordsByCode[record.stockCode]) {
+                                recordsByCode[record.stockCode] = [];
+                            }
+                            recordsByCode[record.stockCode].push(record);
+                            uniqueStockCodes.add(record.stockCode);
+                        }
+                    });
+                    
+                    // 为每个唯一的股票代码获取价格
+                    uniqueStockCodes.forEach(stockCode => {
+                        this.getStockPriceForRefresh(stockCode, recordsByCode[stockCode]);
+                    });
+                },
+                getStockPriceForRefresh(stockCode, records) {
+                    // 确保股票代码格式正确
+                    let code = stockCode;
+                    if (!code.startsWith('sz') && !code.startsWith('sh')) {
+                        code = 'sz' + code; // 默认使用深圳市场
+                    }
+                    
+                    fetch(`https://qt.gtimg.cn/q=${code}`)
+                        .then(response => response.text())
+                        .then(data => {
+                            // 解析返回的数据
+                            const match = data.match(/v_(\w+)="([^"]+)"/);
+                            if (match && match[2]) {
+                                const stockData = match[2].split('~');
+                                if (stockData.length > 3) {
+                                    const currentPrice = parseFloat(stockData[3]);
+                                    
+                                    // 更新所有使用相同股票代码的记录
+                                    records.forEach(record => {
+                                        this.$set(record, 'currentPrice', currentPrice);
+                                        // 计算浮盈
+                                        this.calculateFloatProfit(record);
+                                    });
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('获取股票价格失败:', error);
+                        });
+                }
+            },
+            mounted() {
+                this.loadFromLocalStorage();
+                // 启动定时刷新，每60秒执行一次
+                this.refreshTimer = setInterval(() => {
+                    this.refreshLatestPrices();
+                }, 60000);
+            },
+            beforeDestroy() {
+                // 清除定时器
+                if (this.refreshTimer) {
+                    clearInterval(this.refreshTimer);
+                }
+                if (this.priceTimer) {
+                    clearTimeout(this.priceTimer);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
