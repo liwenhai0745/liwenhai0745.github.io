@@ -97,6 +97,21 @@
             background-color: #9c27b0;
             color: white;
         }
+        /* 编辑弹窗中的下拉框样式 */
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
         /* 弹窗样式 */
         .modal {
             display: none;
@@ -167,7 +182,7 @@
         }
         table {
             width: 100%;
-            min-width: 1140px;
+            min-width: 1220px;
             border-collapse: collapse;
         }
         th, td {
@@ -179,17 +194,18 @@
         th:nth-child(1), td:nth-child(1) { width: 160px; }
         th:nth-child(2), td:nth-child(2) { width: 280px; }
         th:nth-child(3), td:nth-child(3) { width: 90px; }
-        th:nth-child(4), td:nth-child(4) { width: 300px; }
-        th:nth-child(5), td:nth-child(5) { width: 80px; }
-        th:nth-child(6), td:nth-child(6) { width: 90px; }
+        th:nth-child(4), td:nth-child(4) { width: 120px; }
+        th:nth-child(5), td:nth-child(5) { width: 300px; }
+        th:nth-child(6), td:nth-child(6) { width: 80px; }
         th:nth-child(7), td:nth-child(7) { width: 90px; }
-        th:nth-child(8), td:nth-child(8) { width: 80px; }
-        th:nth-child(9), td:nth-child(9) { width: 90px; }
-        th:nth-child(10), td:nth-child(10) { width: 300px; }
-        th:nth-child(11), td:nth-child(11) { width: 90px; }
+        th:nth-child(8), td:nth-child(8) { width: 90px; }
+        th:nth-child(9), td:nth-child(9) { width: 80px; }
+        th:nth-child(10), td:nth-child(10) { width: 90px; }
+        th:nth-child(11), td:nth-child(11) { width: 300px; }
         th:nth-child(12), td:nth-child(12) { width: 90px; }
-        th:nth-child(13), td:nth-child(13) { width: 100px; }
-        th:nth-child(14), td:nth-child(14) { width: 80px; }
+        th:nth-child(13), td:nth-child(13) { width: 90px; }
+        th:nth-child(14), td:nth-child(14) { width: 100px; }
+        th:nth-child(15), td:nth-child(15) { width: 80px; }
         th {
             background-color: #f2f2f2;
             font-weight: bold;
@@ -242,6 +258,7 @@
                     <th>股票名称</th>
                     <th style="display: none;">股票代码</th>
                     <th>浮盈</th>
+                    <th>交易类型</th>
                     <th style="display: none;">B备注</th>
                     <th>B时间</th>
                     <th>成交价格</th>
@@ -262,6 +279,7 @@
                     <td :class="record.floatProfit > 0.1 ? 'profit-negative' : 'profit-positive'">
                         {{ record.floatProfit }}
                     </td>
+                    <td>{{ record.tradeType || '请选择' }}</td>
                     <td style="display: none;"><input v-model="record.bNote" maxlength="300" /></td>
                     <td><input type="date" v-model="record.bTime" /></td>
                     <td><input v-model.number="record.price" @input="calculateProfit(record); calculateFloatProfit(record); calculateChangePercent(record)" /></td>
@@ -292,6 +310,16 @@
                 <div class="form-group">
                     <label for="stockCode">股票代码</label>
                     <input type="text" v-model="editRecordData.stockCode" @input="getStockPriceFromModal" />
+                </div>
+                <div class="form-group">
+                    <label for="tradeType">交易类型</label>
+                    <select v-model="editRecordData.tradeType" class="trade-type-select">
+                        <option value="">请选择</option>
+                        <option value="建仓">建仓</option>
+                        <option value="跌%10补仓">跌%10补仓</option>
+                        <option value="跌20%补仓">跌20%补仓</option>
+                        <option value="跌30%补仓">跌30%补仓</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="bNote">B备注</label>
@@ -332,6 +360,7 @@
                 refreshTimer: null,
                 editRecordData: {
                     stockCode: '',
+                    tradeType: '',
                     bNote: '',
                     sNote: ''
                 },
@@ -509,6 +538,7 @@
                     this.currentRecord = record;
                     // 复制记录数据到编辑数据
                     this.editRecordData.stockCode = record.stockCode || '';
+                    this.editRecordData.tradeType = record.tradeType || '';
                     this.editRecordData.bNote = record.bNote || '';
                     this.editRecordData.sNote = record.sNote || '';
                     // 显示弹窗
@@ -519,6 +549,7 @@
                     const newRecord = {
                         stockName: record.stockName,
                         stockCode: record.stockCode,
+                        tradeType: '',
                         bNote: '',
                         bTime: '',
                         price: 0,
@@ -538,6 +569,7 @@
                     if (this.currentRecord) {
                         // 更新记录数据
                         this.currentRecord.stockCode = this.editRecordData.stockCode;
+                        this.currentRecord.tradeType = this.editRecordData.tradeType;
                         this.currentRecord.bNote = this.editRecordData.bNote;
                         this.currentRecord.sNote = this.editRecordData.sNote;
                         // 关闭弹窗
@@ -547,6 +579,7 @@
                 closeModal() {
                     // 清空编辑数据
                     this.editRecordData.stockCode = '';
+                    this.editRecordData.tradeType = '';
                     this.editRecordData.bNote = '';
                     this.editRecordData.sNote = '';
                     this.currentRecord = null;
