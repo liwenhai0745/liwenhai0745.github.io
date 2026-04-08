@@ -182,18 +182,18 @@
         }
         table {
             width: 100%;
-            min-width: 1220px;
+            min-width: 1100px;
             border-collapse: collapse;
         }
         th, td {
             border: 1px solid #ddd;
             padding: 10px;
-            text-align: left;
+            text-align: center;
             white-space: nowrap;
         }
-        th:nth-child(1), td:nth-child(1) { width: 160px; }
+        th:nth-child(1), td:nth-child(1) { width: 120px; }
         th:nth-child(2), td:nth-child(2) { width: 280px; }
-        th:nth-child(3), td:nth-child(3) { width: 90px; }
+        th:nth-child(3), td:nth-child(3) { width: 70px; }
         th:nth-child(4), td:nth-child(4) { width: 120px; }
         th:nth-child(5), td:nth-child(5) { width: 300px; }
         th:nth-child(6), td:nth-child(6) { width: 80px; }
@@ -202,8 +202,8 @@
         th:nth-child(9), td:nth-child(9) { width: 80px; }
         th:nth-child(10), td:nth-child(10) { width: 90px; }
         th:nth-child(11), td:nth-child(11) { width: 300px; }
-        th:nth-child(12), td:nth-child(12) { width: 90px; }
-        th:nth-child(13), td:nth-child(13) { width: 90px; }
+        th:nth-child(12), td:nth-child(12) { width: 70px; }
+        th:nth-child(13), td:nth-child(13) { width: 70px; }
         th:nth-child(14), td:nth-child(14) { width: 100px; }
         th:nth-child(15), td:nth-child(15) { width: 80px; }
         th {
@@ -263,8 +263,8 @@
                     <th>B时间</th>
                     <th>成交价格</th>
                     <th>操作数量</th>
-                    <th>S时间</th>
-                    <th>卖出价格</th>
+                    <th style="display: none;">S时间</th>
+                    <th style="display: none;">卖出价格</th>
                     <th style="display: none;">S备注</th>
                     <th>收益</th>
                     <th>当前价</th>
@@ -284,8 +284,8 @@
                     <td><input type="date" v-model="record.bTime" /></td>
                     <td><input v-model.number="record.price" @input="calculateProfit(record); calculateFloatProfit(record); calculateChangePercent(record)" /></td>
                     <td><input v-model.number="record.quantity" @input="calculateProfit(record); calculateFloatProfit(record)" /></td>
-                    <td><input type="date" v-model="record.sTime" /></td>
-                    <td><input v-model.number="record.sellPrice" @input="calculateProfit(record); calculateFloatProfit(record)" /></td>
+                    <td style="display: none;"><input type="date" v-model="record.sTime" /></td>
+                    <td style="display: none;"><input v-model.number="record.sellPrice" @input="calculateProfit(record); calculateFloatProfit(record)" /></td>
                     <td style="display: none;"><input v-model="record.sNote" maxlength="300" /></td>
                     <td :class="record.profit > 0.1 ? 'profit-negative' : 'profit-positive'">
                         {{ record.profit }}
@@ -316,10 +316,18 @@
                     <select v-model="editRecordData.tradeType" class="trade-type-select">
                         <option value="">请选择</option>
                         <option value="建仓">建仓</option>
-                        <option value="跌%10补仓">跌%10补仓</option>
+                        <option value="跌%补仓">跌%补仓</option>
                         <option value="跌20%补仓">跌20%补仓</option>
                         <option value="跌30%补仓">跌30%补仓</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="sTime">S时间</label>
+                    <input type="date" v-model="editRecordData.sTime" />
+                </div>
+                <div class="form-group">
+                    <label for="sellPrice">卖出价格</label>
+                    <input type="number" v-model.number="editRecordData.sellPrice" step="0.01" />
                 </div>
                 <div class="form-group">
                     <label for="bNote">B备注</label>
@@ -361,6 +369,8 @@
                 editRecordData: {
                     stockCode: '',
                     tradeType: '',
+                    sTime: '',
+                    sellPrice: 0,
                     bNote: '',
                     sNote: ''
                 },
@@ -539,6 +549,8 @@
                     // 复制记录数据到编辑数据
                     this.editRecordData.stockCode = record.stockCode || '';
                     this.editRecordData.tradeType = record.tradeType || '';
+                    this.editRecordData.sTime = record.sTime || '';
+                    this.editRecordData.sellPrice = record.sellPrice || 0;
                     this.editRecordData.bNote = record.bNote || '';
                     this.editRecordData.sNote = record.sNote || '';
                     // 显示弹窗
@@ -570,8 +582,13 @@
                         // 更新记录数据
                         this.currentRecord.stockCode = this.editRecordData.stockCode;
                         this.currentRecord.tradeType = this.editRecordData.tradeType;
+                        this.currentRecord.sTime = this.editRecordData.sTime;
+                        this.currentRecord.sellPrice = this.editRecordData.sellPrice;
                         this.currentRecord.bNote = this.editRecordData.bNote;
                         this.currentRecord.sNote = this.editRecordData.sNote;
+                        // 重新计算收益和浮盈
+                        this.calculateProfit(this.currentRecord);
+                        this.calculateFloatProfit(this.currentRecord);
                         // 关闭弹窗
                         this.closeModal();
                     }
@@ -580,6 +597,8 @@
                     // 清空编辑数据
                     this.editRecordData.stockCode = '';
                     this.editRecordData.tradeType = '';
+                    this.editRecordData.sTime = '';
+                    this.editRecordData.sellPrice = 0;
                     this.editRecordData.bNote = '';
                     this.editRecordData.sNote = '';
                     this.currentRecord = null;
