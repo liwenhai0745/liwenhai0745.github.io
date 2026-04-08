@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>黄金交易记录管理</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            background-color: #f5f5f5;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 18px;
+        }
+        .buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            min-width: 120px;
+        }
+        .add-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .save-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+        }
+        .edit-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+            margin-right: 5px;
+        }
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+            margin-right: 5px;
+        }
+        .refresh-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        .import-export-btn {
+            background-color: #9c27b0;
+            color: white;
+        }
+        /* 筛选选项样式 */
+        .filter {
+            display: inline-block;
+            margin: 5px 0 15px 0;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .filter label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter input[type="checkbox"] {
+            margin-left: 5px;
+        }
+        /* 编辑弹窗中的下拉框样式 */
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .modal-footer button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+            margin-right: 10px;
+        }
+        .close-btn {
+            background-color: #999;
+            color: white;
+        }
+        table {
+            width: 100%;
+            min-width: 800px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        th:nth-child(1), td:nth-child(1) { width: 120px; }
+        th:nth-child(2), td:nth-child(2) { width: 120px; }
+        th:nth-child(3), td:nth-child(3) { width: 100px; }
+        th:nth-child(4), td:nth-child(4) { width: 150px; }
+        th:nth-child(5), td:nth-child(5) { width: 90px; }
+        th:nth-child(6), td:nth-child(6) { width: 90px; }
+        th:nth-child(7), td:nth-child(7) { width: 120px; }
+        th:nth-child(8), td:nth-child(8) { width: 100px; }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:nth-child(3n+2) {
+            background-color: #ffe6e6;
+        }
+        tr:nth-child(3n+3) {
+            background-color: #e6ffe6;
+        }
+        .profit-row-positive {
+            background-color: #ffe6e6;
+        }
+        .profit-row-negative {
+            background-color: #e6ffe6;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .profit-negative {
+            color: red;
+        }
+        .profit-positive {
+            color: green;
+        }
+        .gold-price-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        .gold-price-container label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .gold-price-container input {
+            width: 120px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <h1>黄金交易记录管理</h1>
+        <div class="gold-price-container">
+            <label for="currentGoldPrice">当前金价:</label>
+            <input type="number" id="currentGoldPrice" v-model.number="currentGoldPrice" step="0.01" @input="updateAllCurrentPrices" />
+        </div>
+        <div class="buttons">
+            <button class="add-btn" @click="addRecord">添加记录</button>
+            <button class="save-btn" @click="saveToLocalStorage">保存到LocalStorage</button>
+            <button class="import-export-btn" @click="openImportExportModal">导入导出</button>
+        </div>
+        <div class="filter">
+            <span>隐藏卖出</span>
+            <input type="checkbox" v-model="hideSoldRecords" />
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                    <th>浮盈</th>
+                    <th>交易类型</th>
+                    <th>B时间</th>
+                    <th>成交价格</th>
+                    <th>操作数量</th>
+                    <th>收益</th>
+                    <th>当前涨跌幅</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(record, index) in records" :key="index" v-if="!hideSoldRecords || record.sellPrice <= 0">
+                    <td :class="record.floatProfit > 0.1 ? 'profit-negative' : 'profit-positive'">
+                        {{ record.floatProfit }}
+                    </td>
+                    <td>{{ record.tradeType || '请选择' }}</td>
+                    <td><input type="date" v-model="record.bTime" /></td>
+                    <td><input v-model.number="record.price" @input="calculateProfit(record); calculateFloatProfit(record); calculateChangePercent(record)" /></td>
+                    <td><input v-model.number="record.quantity" @input="calculateProfit(record); calculateFloatProfit(record)" /></td>
+                    <td :class="record.profit > 0.1 ? 'profit-negative' : 'profit-positive'">
+                        {{ record.profit }}
+                    </td>
+                    <td>{{ record.currentChangePercent }}%</td>
+                    <td>
+                        <button class="edit-btn" @click="editRecord(record)">编辑</button>
+                        <button class="copy-btn" @click="copyRecord(record, index)">复制</button>
+                        <button class="delete-btn" @click="deleteRecord(index)">删除</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 编辑弹窗 -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>编辑记录</h2>
+                </div>
+                <div class="form-group">
+                    <label for="tradeType">交易类型</label>
+                    <select v-model="editRecordData.tradeType" class="trade-type-select">
+                        <option value="">请选择</option>
+                        <option value="建仓">建仓</option>
+                        <option value="跌2%补仓">跌2%补仓</option>
+                        <option value="跌4%补仓">跌4%补仓</option>
+                        <option value="跌6%补仓">跌6%补仓</option>
+                        <option value="跌8%补仓">跌8%补仓</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sTime">S时间</label>
+                    <input type="date" v-model="editRecordData.sTime" />
+                </div>
+                <div class="form-group">
+                    <label for="sellPrice">卖出价格</label>
+                    <input type="number" v-model.number="editRecordData.sellPrice" step="0.01" @input="setSTimeFromModal" />
+                </div>
+                <div class="form-group">
+                    <label for="bNote">B备注</label>
+                    <textarea v-model="editRecordData.bNote" maxlength="300"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sNote">S备注</label>
+                    <textarea v-model="editRecordData.sNote" maxlength="300"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="save-btn" @click="saveEdit">保存</button>
+                    <button class="close-btn" @click="closeModal">关闭</button>
+                </div>
+            </div>
+        </div>
+        <!-- 导入导出弹窗 -->
+        <div id="importExportModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>导入导出数据</h2>
+                </div>
+                <div class="form-group">
+                    <label for="backupData">备份数据</label>
+                    <textarea id="backupData" v-model="backupData" rows="15" placeholder="LocalStorage数据会自动显示在这里"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="save-btn" @click="importData">导入</button>
+                    <button class="close-btn" @click="closeImportExportModal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                currentGoldPrice: 0,
+                editRecordData: {
+                    tradeType: '',
+                    sTime: '',
+                    sellPrice: 0,
+                    bNote: '',
+                    sNote: ''
+                },
+                backupData: '',
+                hideSoldRecords: true,
+                currentRecord: null,
+                records: [
+                    {
+                        bNote: '建仓1',
+                        bTime: '2026-03-26',
+                        price: 44.3,
+                        quantity: 200,
+                        sTime: '',
+                        sellPrice: 0,
+                        sNote: '',
+                        profit: -2066,
+                        currentPrice: 0,
+                        currentChangePercent: -23.32,
+                        floatProfit: 0
+                    },
+                    {
+                        bNote: '建仓(跌10%)',
+                        bTime: '2026-03-30',
+                        price: 38.88,
+                        quantity: 200,
+                        sTime: '',
+                        sellPrice: 0,
+                        sNote: '',
+                        profit: -982,
+                        currentPrice: 0,
+                        currentChangePercent: -23.32,
+                        floatProfit: 0
+                    },
+                    {
+                        bNote: '建仓3(跌20%)',
+                        bTime: '2026-04-02',
+                        price: 35.43,
+                        quantity: 200,
+                        sTime: '',
+                        sellPrice: 0,
+                        sNote: '',
+                        profit: -292,
+                        currentPrice: 0,
+                        currentChangePercent: -23.32,
+                        floatProfit: 0
+                    }
+                ]
+            },
+            methods: {
+                addRecord() {
+                    // 获取今天的日期，格式为YYYY-MM-DD
+                    const today = new Date().toISOString().split('T')[0];
+                    this.records.push({
+                        tradeType: '',
+                        bNote: '',
+                        bTime: today,
+                        price: 0,
+                        quantity: 0,
+                        sTime: '',
+                        sellPrice: 0,
+                        sNote: '',
+                        profit: 0,
+                        currentPrice: this.currentGoldPrice,
+                        currentChangePercent: 0,
+                        floatProfit: 0
+                    });
+                },
+                calculateProfit(record) {
+                    if (record.sellPrice && record.price && record.quantity && !isNaN(record.sellPrice) && !isNaN(record.price) && !isNaN(record.quantity)) {
+                        record.profit = parseFloat(((record.sellPrice - record.price) * record.quantity).toFixed(2));
+                    } else if (!record.sellPrice) {
+                        // 如果卖出价格为空，设为0
+                        record.profit = 0;
+                    }
+                },
+                calculateFloatProfit(record) {
+                    if (!record.sellPrice && record.currentPrice && record.price && record.quantity && !isNaN(record.currentPrice) && !isNaN(record.price) && !isNaN(record.quantity)) {
+                        record.floatProfit = parseFloat(((record.currentPrice - record.price) * record.quantity).toFixed(2));
+                    } else if (record.sellPrice) {
+                        // 如果卖出价格不为空，不计算浮盈
+                        record.floatProfit = 0;
+                    }
+                },
+                calculateChangePercent(record) {
+                    if (record.currentPrice && record.price && !isNaN(record.currentPrice) && !isNaN(record.price)) {
+                        record.currentChangePercent = parseFloat((((record.currentPrice - record.price) / record.price) * 100).toFixed(2));
+                    } else if (record.currentChangePercent !== 0) {
+                        record.currentChangePercent = 0;
+                    }
+                },
+                setSTime(record) {
+                    // 当录入卖出价格时，将S时间设置为今天的日期
+                    if (record.sellPrice) {
+                        record.sTime = new Date().toISOString().split('T')[0];
+                    }
+                },
+                setSTimeFromModal() {
+                    // 当在编辑弹窗中录入卖出价格时，将S时间设置为今天的日期
+                    if (this.editRecordData.sellPrice) {
+                        this.editRecordData.sTime = new Date().toISOString().split('T')[0];
+                    }
+                },
+                updateAllCurrentPrices() {
+                    // 更新所有记录的当前价格为当前金价
+                    this.records.forEach(record => {
+                        record.currentPrice = this.currentGoldPrice;
+                        this.calculateChangePercent(record);
+                        this.calculateFloatProfit(record);
+                    });
+                },
+                saveToLocalStorage() {
+                    const data = {
+                        records: this.records,
+                        currentGoldPrice: this.currentGoldPrice
+                    };
+                    localStorage.setItem('goldTradingRecords', JSON.stringify(data));
+                    alert('数据已保存到LocalStorage');
+                },
+                loadFromLocalStorage() {
+                    const saved = localStorage.getItem('goldTradingRecords');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.records = data.records || [];
+                        this.currentGoldPrice = data.currentGoldPrice || 0;
+                        // 更新所有记录的当前价格为当前金价
+                        this.updateAllCurrentPrices();
+                    }
+                },
+                deleteRecord(index) {
+                    if (confirm('确定要删除这条记录吗？')) {
+                        this.records.splice(index, 1);
+                    }
+                },
+                openImportExportModal() {
+                    // 获取当前records数据并显示在文本框中
+                    this.backupData = JSON.stringify(this.records, null, 2);
+                    // 显示弹窗
+                    document.getElementById('importExportModal').style.display = 'block';
+                },
+                importData() {
+                    try {
+                        const parsedData = JSON.parse(this.backupData);
+                        if (Array.isArray(parsedData)) {
+                            this.records = parsedData;
+                            // 保存到LocalStorage
+                            localStorage.setItem('goldTradingRecords', JSON.stringify(parsedData));
+                            // 更新所有记录的当前价格为当前金价
+                            this.updateAllCurrentPrices();
+                            alert('导入成功！');
+                        } else {
+                            alert('导入失败：数据格式不正确，需要是一个数组');
+                        }
+                    } catch (error) {
+                        alert('导入失败：数据格式不正确');
+                    }
+                },
+                closeImportExportModal() {
+                    // 清空备份数据
+                    this.backupData = '';
+                    // 隐藏弹窗
+                    document.getElementById('importExportModal').style.display = 'none';
+                },
+                editRecord(record) {
+                    // 保存当前编辑的记录
+                    this.currentRecord = record;
+                    // 复制记录数据到编辑数据
+                    this.editRecordData.tradeType = record.tradeType || '';
+                    this.editRecordData.sTime = record.sTime || '';
+                    this.editRecordData.sellPrice = record.sellPrice || 0;
+                    this.editRecordData.bNote = record.bNote || '';
+                    this.editRecordData.sNote = record.sNote || '';
+                    // 显示弹窗
+                    document.getElementById('editModal').style.display = 'block';
+                },
+                copyRecord(record, index) {
+                    // 获取今天的日期，格式为YYYY-MM-DD
+                    const today = new Date().toISOString().split('T')[0];
+                    // 创建新记录
+                    const newRecord = {
+                        tradeType: '',
+                        bNote: '',
+                        bTime: today,
+                        price: 0,
+                        quantity: 0,
+                        sTime: '',
+                        sellPrice: 0,
+                        sNote: '',
+                        profit: 0,
+                        currentPrice: this.currentGoldPrice,
+                        currentChangePercent: 0,
+                        floatProfit: 0
+                    };
+                    // 在当前索引后插入新记录
+                    this.records.splice(index + 1, 0, newRecord);
+                },
+                saveEdit() {
+                    if (this.currentRecord) {
+                        // 更新记录数据
+                        this.currentRecord.tradeType = this.editRecordData.tradeType;
+                        this.currentRecord.sTime = this.editRecordData.sTime;
+                        this.currentRecord.sellPrice = this.editRecordData.sellPrice;
+                        this.currentRecord.bNote = this.editRecordData.bNote;
+                        this.currentRecord.sNote = this.editRecordData.sNote;
+                        // 重新计算收益和浮盈
+                        this.calculateProfit(this.currentRecord);
+                        this.calculateFloatProfit(this.currentRecord);
+                        // 关闭弹窗
+                        this.closeModal();
+                    }
+                },
+                closeModal() {
+                    // 清空编辑数据
+                    this.editRecordData.tradeType = '';
+                    this.editRecordData.sTime = '';
+                    this.editRecordData.sellPrice = 0;
+                    this.editRecordData.bNote = '';
+                    this.editRecordData.sNote = '';
+                    this.currentRecord = null;
+                    // 隐藏弹窗
+                    document.getElementById('editModal').style.display = 'none';
+                }
+            },
+            mounted() {
+                this.loadFromLocalStorage();
+            }
+        });
+    </script>
+</body>
+</html>
