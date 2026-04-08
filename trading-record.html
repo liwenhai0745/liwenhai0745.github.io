@@ -97,6 +97,22 @@
             background-color: #9c27b0;
             color: white;
         }
+        /* 筛选选项样式 */
+        .filter {
+            display: inline-block;
+            margin: 5px 0 15px 0;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .filter label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter input[type="checkbox"] {
+            margin-left: 5px;
+        }
         /* 编辑弹窗中的下拉框样式 */
         .form-group select {
             width: 100%;
@@ -251,6 +267,10 @@
             <button class="refresh-btn" @click="refreshLatestPrices">刷新最新价</button>
             <button class="import-export-btn" @click="openImportExportModal">导入导出</button>
         </div>
+        <div class="filter">
+            <span>隐藏卖出</span>
+            <input type="checkbox" v-model="hideSoldRecords" />
+        </div>
         <div class="table-container">
             <table>
                 <thead>
@@ -273,7 +293,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(record, index) in records" :key="index">
+                    <tr v-for="(record, index) in records" :key="index" v-if="!hideSoldRecords || record.sellPrice <= 0">
                     <td><input v-model="record.stockName" /></td>
                     <td style="display: none;"><input v-model="record.stockCode" @input="getStockPrice(record)" /></td>
                     <td :class="record.floatProfit > 0.1 ? 'profit-negative' : 'profit-positive'">
@@ -285,7 +305,7 @@
                     <td><input v-model.number="record.price" @input="calculateProfit(record); calculateFloatProfit(record); calculateChangePercent(record)" /></td>
                     <td><input v-model.number="record.quantity" @input="calculateProfit(record); calculateFloatProfit(record)" /></td>
                     <td style="display: none;"><input type="date" v-model="record.sTime" /></td>
-                    <td style="display: none;"><input v-model.number="record.sellPrice" @input="calculateProfit(record); calculateFloatProfit(record)" /></td>
+                    <td style="display: none;"><input v-model.number="record.sellPrice" @input="setSTime(record); calculateProfit(record); calculateFloatProfit(record)" /></td>
                     <td style="display: none;"><input v-model="record.sNote" maxlength="300" /></td>
                     <td :class="record.profit > 0.1 ? 'profit-negative' : 'profit-positive'">
                         {{ record.profit }}
@@ -327,7 +347,7 @@
                 </div>
                 <div class="form-group">
                     <label for="sellPrice">卖出价格</label>
-                    <input type="number" v-model.number="editRecordData.sellPrice" step="0.01" />
+                    <input type="number" v-model.number="editRecordData.sellPrice" step="0.01" @input="setSTimeFromModal" />
                 </div>
                 <div class="form-group">
                     <label for="bNote">B备注</label>
@@ -375,6 +395,7 @@
                     sNote: ''
                 },
                 backupData: '',
+                hideSoldRecords: true,
                 currentRecord: null,
                 records: [
                     {
@@ -426,11 +447,14 @@
             },
             methods: {
                 addRecord() {
+                    // 获取今天的日期，格式为YYYY-MM-DD
+                    const today = new Date().toISOString().split('T')[0];
                     this.records.push({
                         stockName: '',
                         stockCode: '',
+                        tradeType: '',
                         bNote: '',
-                        bTime: '',
+                        bTime: today,
                         price: 0,
                         quantity: 0,
                         sTime: '',
@@ -463,6 +487,18 @@
                         record.currentChangePercent = parseFloat((((record.currentPrice - record.price) / record.price) * 100).toFixed(2));
                     } else if (record.currentChangePercent !== 0) {
                         record.currentChangePercent = 0;
+                    }
+                },
+                setSTime(record) {
+                    // 当录入卖出价格时，将S时间设置为今天的日期
+                    if (record.sellPrice) {
+                        record.sTime = new Date().toISOString().split('T')[0];
+                    }
+                },
+                setSTimeFromModal() {
+                    // 当在编辑弹窗中录入卖出价格时，将S时间设置为今天的日期
+                    if (this.editRecordData.sellPrice) {
+                        this.editRecordData.sTime = new Date().toISOString().split('T')[0];
                     }
                 },
                 getStockPrice(record) {
@@ -543,6 +579,12 @@
                     // 隐藏弹窗
                     document.getElementById('importExportModal').style.display = 'none';
                 },
+                setSTime(record) {
+                    // 当录入卖出价格时，将S时间设置为今天的日期
+                    if (record.sellPrice) {
+                        record.sTime = new Date().toISOString().split('T')[0];
+                    }
+                },
                 editRecord(record) {
                     // 保存当前编辑的记录
                     this.currentRecord = record;
@@ -557,13 +599,15 @@
                     document.getElementById('editModal').style.display = 'block';
                 },
                 copyRecord(record, index) {
+                    // 获取今天的日期，格式为YYYY-MM-DD
+                    const today = new Date().toISOString().split('T')[0];
                     // 创建新记录，复制股票名称和股票代码
                     const newRecord = {
                         stockName: record.stockName,
                         stockCode: record.stockCode,
                         tradeType: '',
                         bNote: '',
-                        bTime: '',
+                        bTime: today,
                         price: 0,
                         quantity: 0,
                         sTime: '',
