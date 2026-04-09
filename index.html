@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>导航页面</title>
+    <title>做T记录管理</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <style>
         * {
@@ -17,6 +17,34 @@
             background-color: #f5f5f5;
             font-size: 14px;
         }
+        .nav-bar {
+            background-color: white;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            padding: 0 15px;
+        }
+        .nav-item {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-item:hover {
+            background-color: #f0f0f0;
+        }
+        .nav-item.active {
+            color: #2196F3;
+            font-weight: bold;
+        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -25,75 +53,216 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
         h1 {
             text-align: center;
             margin-bottom: 20px;
             color: #333;
             font-size: 18px;
         }
-        .nav-container {
+        .buttons {
+            margin-bottom: 20px;
             display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 10px;
+            flex-wrap: wrap;
         }
-        .nav-item {
-            display: block;
-            padding: 15px 20px;
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            min-width: 120px;
+        }
+        .add-btn {
             background-color: #4CAF50;
             color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 16px;
-            transition: background-color 0.3s;
         }
-        .nav-item:hover {
-            background-color: #45a049;
+        .save-btn {
+            background-color: #2196F3;
+            color: white;
         }
-        .info {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 6px;
-            border-left: 4px solid #2196F3;
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
         }
-        .info h2 {
-            margin-bottom: 10px;
+        .edit-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+            margin-right: 5px;
+        }
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+            margin-right: 5px;
+        }
+        .refresh-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            margin: 0;
             color: #333;
-            font-size: 16px;
         }
-        .info p {
-            color: #666;
-            line-height: 1.5;
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .modal-footer button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+            margin-right: 10px;
+        }
+        .close-btn {
+            background-color: #999;
+            color: white;
+        }
+        table {
+            width: 100%;
+            min-width: 1070px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        th:nth-child(1), td:nth-child(1) { width: 120px; }
+        th:nth-child(3), td:nth-child(3) { width: 90px; }
+        th:nth-child(4), td:nth-child(4) { width: 120px; }
+        th:nth-child(5), td:nth-child(5) { width: 100px; }
+        th:nth-child(6), td:nth-child(6) { width: 100px; }
+        th:nth-child(7), td:nth-child(7) { width: 100px; }
+        th:nth-child(8), td:nth-child(8) { width: 100px; }
+        th:nth-child(9), td:nth-child(9) { width: 100px; }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:nth-child(3n+2) {
+            background-color: #ffe6e6;
+        }
+        tr:nth-child(3n+3) {
+            background-color: #e6ffe6;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .profit-negative {
+            color: red;
+        }
+        .profit-positive {
+            color: green;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="app">
-        <h1>导航页面</h1>
-        <div class="nav-container">
+    <div class="nav-bar">
+        <div class="nav-content">
+            <a href="index.html" class="nav-item active">首页</a>
             <a href="trading-record.html" class="nav-item">交易记录</a>
-        </div>
-        <div class="info">
-            <h2>关于本系统</h2>
-            <p>本系统提供交易记录管理功能，您可以通过上方导航进入交易记录页面，查看和管理您的交易记录。</p>
-            <p>系统特点：</p>
-            <ul>
-                <li>添加、编辑、删除交易记录</li>
-                <li>实时获取股票最新价格</li>
-                <li>计算交易收益和浮盈</li>
-                <li>数据保存到本地存储</li>
-            </ul>
+            <a href="t-record.html" class="nav-item ">T记录</a>
+            <a href="t-money.html" class="nav-item">T资金管理</a>
+            <a href="gold-record.html" class="nav-item">黄金交易记录</a>
         </div>
     </div>
+    <div class="container" id="app">
+        <h1>首页</h1>
+        
+       
+    </div>
     <script>
-        new Vue({
-            el: '#app',
-            data: {
-                // 可以添加其他导航项或数据
-            }
-        });
+     
     </script>
 </body>
 </html>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>T资金管理</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            background-color: #f5f5f5;
+            font-size: 14px;
+        }
+        .nav-bar {
+            background-color: white;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            padding: 0 15px;
+        }
+        .nav-item {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-item:hover {
+            background-color: #f0f0f0;
+        }
+        .nav-item.active {
+            color: #2196F3;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 18px;
+        }
+        .buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            min-width: 120px;
+        }
+        .add-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .save-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+        }
+        .copy-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+            margin-right: 5px;
+        }
+        table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        th:nth-child(1), td:nth-child(1) { width: 120px; }
+        th:nth-child(2), td:nth-child(2) { width: 120px; }
+        th:nth-child(3), td:nth-child(3) { width: 100px; }
+        th:nth-child(4), td:nth-child(4) { width: 100px; }
+        th:nth-child(5), td:nth-child(5) { width: 300px; }
+        th:nth-child(6), td:nth-child(6) { width: 100px; }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:nth-child(3n+2) {
+            background-color: #ffe6e6;
+        }
+        tr:nth-child(3n+3) {
+            background-color: #e6ffe6;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 40px;
+            max-height: 80px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            background-color: white;
+        }
+        select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <div class="nav-content">
+            <a href="index.html" class="nav-item">首页</a>
+            <a href="trading-record.html" class="nav-item">交易记录</a>
+            <a href="t-record.html" class="nav-item">T记录</a>
+            <a href="t-money.html" class="nav-item active">T资金管理</a>
+            <a href="gold-record.html" class="nav-item">黄金交易记录</a>
+        </div>
+    </div>
+    <div class="container" id="app">
+        <h1>T资金管理</h1>
+        <div class="buttons">
+            <button class="add-btn" @click="addRecord">添加记录</button>
+            <button class="save-btn" @click="saveToLocalStorage">保存到LocalStorage</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>股票名称</th>
+                        <th>操作类型</th>
+                        <th>操作日期</th>
+                        <th>金额</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(record, index) in records" :key="index">
+                        <td><input v-model="record.stockName" /></td>
+                        <td>
+                            <select v-model="record.operationType">
+                                <option value="">请选择</option>
+                                <option value="提现银行卡">提现银行卡</option>
+                                <option value="T占用">T占用</option>
+                                <option value="反T占用">反T占用</option>
+                            </select>
+                        </td>
+                        <td><input type="date" v-model="record.operationDate" /></td>
+                        <td><input v-model.number="record.amount" type="number" step="0.01" /></td>
+                        <td><textarea v-model="record.remark" maxlength="300"></textarea></td>
+                        <td>
+                            <button class="copy-btn" @click="copyRecord(record, index)">复制</button>
+                            <button class="delete-btn" @click="deleteRecord(index)">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top: 15px; font-weight: bold; text-align: right;">
+            自由资金合计: {{ bankCardTotal }} | 正T占用合计: {{ ttTotal }} | 反T占用合计: {{ antiTTotal }}
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                records: [
+                    {
+                        stockName: '赢时胜',
+                        operationType: '',
+                        operationDate: '2026-03-27',
+                        amount: 10000,
+                        remark: '初始资金'
+                    }
+                ]
+            },
+            computed: {
+                bankCardTotal() {
+                    return this.records.reduce((total, record) => {
+                        if (record.operationType === '提现银行卡') {
+                            return total + (record.amount || 0);
+                        }
+                        return total;
+                    }, 0).toFixed(2);
+                },
+                antiTTotal() {
+                    return this.records.reduce((total, record) => {
+                        if (record.operationType === '反T占用') {
+                            return total + (record.amount || 0);
+                        }
+                        return total;
+                    }, 0).toFixed(2);
+                },
+                ttTotal() {
+                    return this.records.reduce((total, record) => {
+                        if (record.operationType === 'T占用') {
+                            return total + (record.amount || 0);
+                        }
+                        return total;
+                    }, 0).toFixed(2);
+                }
+            },
+            methods: {
+                addRecord() {
+                    // 获取今天的日期，格式为YYYY-MM-DD
+                    const today = new Date().toISOString().split('T')[0];
+                    this.records.push({
+                        stockName: '',
+                        operationType: '',
+                        operationDate: today,
+                        amount: 0,
+                        remark: ''
+                    });
+                },
+                saveToLocalStorage() {
+                    localStorage.setItem('tMoneyRecords', JSON.stringify(this.records));
+                    alert('数据已保存到LocalStorage');
+                },
+                loadFromLocalStorage() {
+                    const saved = localStorage.getItem('tMoneyRecords');
+                    if (saved) {
+                        this.records = JSON.parse(saved);
+                    }
+                },
+                deleteRecord(index) {
+                    if (confirm('确定要删除这条记录吗？')) {
+                        this.records.splice(index, 1);
+                    }
+                },
+                copyRecord(record, index) {
+                    // 获取今天的日期，格式为YYYY-MM-DD
+                    const today = new Date().toISOString().split('T')[0];
+                    // 创建新记录，复制股票名称
+                    const newRecord = {
+                        stockName: record.stockName,
+                        operationType: '',
+                        operationDate: today,
+                        amount: 0,
+                        remark: ''
+                    };
+                    // 在当前索引后插入新记录
+                    this.records.splice(index + 1, 0, newRecord);
+                }
+            },
+            mounted() {
+                this.loadFromLocalStorage();
+            }
+        });
+    </script>
+</body>
+</html>

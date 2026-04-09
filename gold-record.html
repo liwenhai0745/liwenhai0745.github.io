@@ -17,6 +17,34 @@
             background-color: #f5f5f5;
             font-size: 14px;
         }
+        .nav-bar {
+            background-color: white;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            padding: 0 15px;
+        }
+        .nav-item {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-item:hover {
+            background-color: #f0f0f0;
+        }
+        .nav-item.active {
+            color: #2196F3;
+            font-weight: bold;
+        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -266,6 +294,15 @@
     </style>
 </head>
 <body>
+    <div class="nav-bar">
+        <div class="nav-content">
+            <a href="index.html" class="nav-item">首页</a>
+            <a href="trading-record.html" class="nav-item">交易记录</a>
+            <a href="t-record.html" class="nav-item">T记录</a>
+            <a href="t-money.html" class="nav-item">T资金管理</a>
+            <a href="gold-record.html" class="nav-item active">黄金交易记录</a>
+        </div>
+    </div>
     <div class="container" id="app">
         <h1>黄金交易记录管理</h1>
         <div class="gold-price-container">
