@@ -748,6 +748,8 @@
             },
             mounted() {
                 this.loadFromLocalStorage();
+                // 页面打开时立即刷新最新价格
+                this.refreshLatestPrices();
                 // 启动定时刷新，每60秒执行一次
                 this.refreshTimer = setInterval(() => {
                     this.refreshLatestPrices();

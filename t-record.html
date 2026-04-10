@@ -87,6 +87,10 @@
             flex: 1;
             min-width: 120px;
         }
+        .import-export-btn {
+            background-color: #9c27b0;
+            color: white;
+        }
         .add-btn {
             background-color: #4CAF50;
             color: white;
@@ -263,6 +267,7 @@
             <button class="add-btn" @click="addRecord">添加记录</button>
             <button class="save-btn" @click="saveToLocalStorage">保存到LocalStorage</button>
             <button class="refresh-btn" @click="refreshLatestPrices">刷新最新价</button>
+            <button class="import-export-btn" @click="openImportExportModal">导入导出</button>
         </div>
         <div class="table-container">
             <table>
@@ -328,6 +333,22 @@
                 </div>
             </div>
         </div>
+        <!-- 导入导出弹窗 -->
+        <div id="importExportModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>导入导出数据</h2>
+                </div>
+                <div class="form-group">
+                    <label for="backupData">备份数据</label>
+                    <textarea id="backupData" v-model="backupData" rows="15" placeholder="LocalStorage数据会自动显示在这里"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="save-btn" @click="importData">导入</button>
+                    <button class="close-btn" @click="closeImportExportModal">关闭</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         new Vue({
@@ -338,6 +359,7 @@
                 editRecordData: {
                     stockCode: ''
                 },
+                backupData: '',
                 currentRecord: null,
                 records: [
                     
@@ -494,6 +516,33 @@
                     // 隐藏弹窗
                     document.getElementById('editModal').style.display = 'none';
                 },
+                openImportExportModal() {
+                    // 获取当前records数据并显示在文本框中
+                    this.backupData = JSON.stringify(this.records, null, 2);
+                    // 显示弹窗
+                    document.getElementById('importExportModal').style.display = 'block';
+                },
+                importData() {
+                    try {
+                        const parsedData = JSON.parse(this.backupData);
+                        if (Array.isArray(parsedData)) {
+                            this.records = parsedData;
+                            // 保存到LocalStorage
+                            localStorage.setItem('tRecords', JSON.stringify(parsedData));
+                            alert('导入成功！');
+                        } else {
+                            alert('导入失败：数据格式不正确，需要是一个数组');
+                        }
+                    } catch (error) {
+                        alert('导入失败：数据格式不正确');
+                    }
+                },
+                closeImportExportModal() {
+                    // 清空备份数据
+                    this.backupData = '';
+                    // 隐藏弹窗
+                    document.getElementById('importExportModal').style.display = 'none';
+                },
                 getStockPriceFromModal() {
                     if (this.currentRecord) {
                         this.currentRecord.stockCode = this.editRecordData.stockCode;
@@ -556,6 +605,8 @@
             },
             mounted() {
                 this.loadFromLocalStorage();
+                // 页面打开时立即刷新最新价格
+                this.refreshLatestPrices();
                 // 启动定时刷新，每60秒执行一次
                 this.refreshTimer = setInterval(() => {
                     this.refreshLatestPrices();
