@@ -380,11 +380,13 @@
             },
             methods: {
                 addRecord() {
+                    // 获取当前日期，格式为 YYYY-MM-DD
+                    const currentDate = new Date().toISOString().split('T')[0];
                     this.records.push({
                         stockName: '',
                         stockCode: '',
                         tType: '',
-                        bTime: '',
+                        bTime: currentDate,
                         price: 0,
                         quantity: 0,
                         currentPrice: 0,
@@ -485,12 +487,14 @@
                     document.getElementById('editModal').style.display = 'block';
                 },
                 copyRecord(record, index) {
+                    // 获取当前日期，格式为 YYYY-MM-DD
+                    const currentDate = new Date().toISOString().split('T')[0];
                     // 创建新记录，复制股票名称和股票代码
                     const newRecord = {
                         stockName: record.stockName,
                         stockCode: record.stockCode,
                         tType: '',
-                        bTime: '',
+                        bTime: currentDate,
                         price: 0,
                         quantity: 0,
                         currentPrice: 0,
