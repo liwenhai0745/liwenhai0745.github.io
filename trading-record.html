@@ -753,7 +753,7 @@
                 // 启动定时刷新，每60秒执行一次
                 this.refreshTimer = setInterval(() => {
                     this.refreshLatestPrices();
-                }, 60000);
+                }, 15000);
             },
             beforeDestroy() {
                 // 清除定时器
