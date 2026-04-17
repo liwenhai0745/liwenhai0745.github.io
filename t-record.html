@@ -289,7 +289,12 @@
                 </thead>
                 <tbody>
                     <tr v-for="(record, index) in records" :key="index">
-                        <td><input v-model="record.stockName" /></td>
+                        <td>
+                            <select v-model="record.stockName" @change="updateStockCode(record)" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
+                                <option value="">请选择股票</option>
+                                <option v-for="stock in stocks" :key="stock.code" :value="stock.name">{{ stock.name }}</option>
+                            </select>
+                        </td>
                         <td style="display: none;"><input v-model="record.stockCode" @input="getStockPrice(record)" /></td>
                         <td>
                             <select v-model="record.tType" @change="calculateFloatProfit(record)">
@@ -361,6 +366,7 @@
                 },
                 backupData: '',
                 currentRecord: null,
+                stocks: [],
                 records: [
                     
                     {
@@ -379,6 +385,22 @@
                 ]
             },
             methods: {
+                loadStocks() {
+                    const savedStocks = localStorage.getItem('myStocks');
+                    if (savedStocks) {
+                        this.stocks = JSON.parse(savedStocks);
+                    }
+                },
+                updateStockCode(record) {
+                    if (record.stockName) {
+                        const selectedStock = this.stocks.find(stock => stock.name === record.stockName);
+                        if (selectedStock) {
+                            record.stockCode = selectedStock.code;
+                            record.quantity = selectedStock.quantity || 0;
+                            this.getStockPrice(record);
+                        }
+                    }
+                },
                 addRecord() {
                     // 获取当前日期，格式为 YYYY-MM-DD
                     const currentDate = new Date().toISOString().split('T')[0];
@@ -608,6 +630,7 @@
                 }
             },
             mounted() {
+                this.loadStocks();
                 this.loadFromLocalStorage();
                 // 页面打开时立即刷新最新价格
                 this.refreshLatestPrices();

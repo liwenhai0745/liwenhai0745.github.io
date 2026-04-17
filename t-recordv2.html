@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>做T记录匹配系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+        }
+        .section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .match-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .match-table th,
+        .match-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+        .match-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            border-bottom: 2px solid #007bff;
+        }
+        .match-table tr {
+            transition: background-color 0.2s ease;
+        }
+        .match-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .buy-cell {
+            background-color: #ffebee;
+            border-right: 1px solid #ddd;
+        }
+        .sell-cell {
+            background-color: #e3f2fd;
+            border-right: 1px solid #ddd;
+        }
+        .profit-cell {
+            background-color: #f1f8e9;
+            font-weight: bold;
+        }
+        .profit-positive {
+            color: #4caf50;
+        }
+        .profit-negative {
+            color: #f44336;
+        }
+        .no-match {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .trade-item {
+            cursor: grab;
+            transition: all 0.2s ease;
+            padding: 10px;
+        }
+        .trade-item:hover {
+            background-color: #f8f9fa;
+        }
+        .trade-item:active {
+            cursor: grabbing;
+        }
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 30px 0;
+        }
+        .total-profit {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .list-group-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 25px;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #495057;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-5">做T记录匹配系统</h1>
+        
+        <!-- 标签页 -->
+        <div class="section">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="match-tab" data-bs-toggle="tab" data-bs-target="#match" type="button" role="tab" aria-controls="match" aria-selected="true">匹配结果</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="records-tab" data-bs-toggle="tab" data-bs-target="#records" type="button" role="tab" aria-controls="records" aria-selected="false">操作记录</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <!-- 匹配结果标签页 -->
+                <div class="tab-pane fade show active" id="match" role="tabpanel" aria-labelledby="match-tab">
+                    <div class="mt-4">
+                        <table class="match-table">
+                            <thead>
+                                <tr>
+                                    <th class="buy-cell">买入记录</th>
+                                    <th class="sell-cell">卖出记录</th>
+                                    <th class="text-center">操作股数</th>
+                                    <th class="profit-cell">预估收益</th>
+                                </tr>
+                            </thead>
+                            <tbody id="match-results">
+                                <!-- 匹配结果将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                        <div class="total-profit text-right mt-3" id="total-profit">
+                            总收益: ¥0.00
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作记录标签页 -->
+                <div class="tab-pane fade" id="records" role="tabpanel" aria-labelledby="records-tab">
+                    <div class="mt-4">
+                        <div class="row">
+                            <!-- 左边：买入记录 -->
+                            <div class="col-md-6">
+                                <div class="section">
+                                    <h2>买入记录</h2>
+                                    <div class="list-group" id="buy-list">
+                                        <!-- 买入记录将通过JavaScript动态生成 -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 右边：卖出记录 -->
+                            <div class="col-md-6">
+                                <div class="section">
+                                    <h2>卖出记录</h2>
+                                    <div class="list-group" id="sell-list">
+                                        <!-- 卖出记录将通过JavaScript动态生成 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 模拟数据
+        const buyData = [
+            { id: 1, date: '2026/01/14', time: '13:13:00', price: 144.12, quantity: 100 },
+            { id: 2, date: '2026/01/15', time: '10:24:00', price: 136.04, quantity: 100 },
+            { id: 3, date: '2026/01/19', time: '10:33:00', price: 130.82, quantity: 100 },
+            { id: 4, date: '2026/01/27', time: '09:40:00', price: 124.13, quantity: 100 },
+            { id: 5, date: '2026/02/04', time: '11:03:00', price: 119.73, quantity: 100 },
+            { id: 6, date: '2026/02/13', time: '11:17:00', price: 116.80, quantity: 100 },
+            { id: 7, date: '2026/03/05', time: '09:57:00', price: 110.69, quantity: 100 },
+            { id: 8, date: '2026/03/12', time: '10:41:00', price: 106.96, quantity: 100 },
+            { id: 9, date: '2026/03/20', time: '14:54:00', price: 101.56, quantity: 100 },
+            { id: 10, date: '2026/04/03', time: '10:05:00', price: 95.64, quantity: 100 }
+        ];
+        
+        const sellData = [
+            { id: 1, date: '2026/01/14', time: '09:34:00', price: 144.86, quantity: 100 },
+            { id: 2, date: '2026/01/14', time: '09:41:00', price: 147.08, quantity: 100 },
+            { id: 3, date: '2026/01/14', time: '09:43:00', price: 148.99, quantity: 100 },
+            { id: 4, date: '2026/01/14', time: '10:00:00', price: 150.30, quantity: 100 },
+            { id: 5, date: '2026/01/14', time: '10:01:00', price: 152.59, quantity: 100 },
+            { id: 6, date: '2026/01/14', time: '11:11:00', price: 154.16, quantity: 100 },
+            { id: 7, date: '2026/01/16', time: '09:30:00', price: 137.94, quantity: 100 },
+            { id: 8, date: '2026/01/16', time: '09:32:00', price: 139.90, quantity: 100 },
+            { id: 9, date: '2026/01/19', time: '13:14:00', price: 132.53, quantity: 100 },
+            { id: 10, date: '2026/01/27', time: '13:46:00', price: 126.08, quantity: 100 },
+            { id: 11, date: '2026/01/29', time: '13:38:00', price: 127.67, quantity: 100 },
+            { id: 12, date: '2026/02/04', time: '14:13:00', price: 121.90, quantity: 100 },
+            { id: 13, date: '2026/02/04', time: '14:15:00', price: 123.56, quantity: 100 },
+            { id: 14, date: '2026/02/05', time: '13:48:00', price: 124.30, quantity: 100 },
+            { id: 15, date: '2026/02/25', time: '11:00:00', price: 118.40, quantity: 100 },
+            { id: 16, date: '2026/03/06', time: '11:27:00', price: 112.70, quantity: 100 },
+            { id: 17, date: '2026/03/06', time: '13:38:00', price: 114.16, quantity: 100 },
+            { id: 18, date: '2026/03/17', time: '09:57:00', price: 108.55, quantity: 100 }
+        ];
+        
+        // 匹配关系
+        let matches = [];
+        
+        // 初始化页面
+        function init() {
+            renderBuyList();
+            renderSellList();
+            initSortable();
+            updateMatches();
+        }
+        
+        // 渲染买入列表
+        function renderBuyList() {
+            const buyList = document.getElementById('buy-list');
+            buyList.innerHTML = '';
+            
+            if (buyData.length === 0) {
+                buyList.innerHTML = '<div class="no-data">暂无买入记录</div>';
+                return;
+            }
+            
+            buyData.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item trade-item';
+                li.dataset.id = item.id;
+                li.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>${item.date} ${item.time}</strong>
+                            <p class="mb-0">价格: ¥${item.price.toFixed(2)}</p>
+                            <p class="mb-0">数量: ${item.quantity}</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-danger">买入</span>
+                        </div>
+                    </div>
+                `;
+                buyList.appendChild(li);
+            });
+        }
+        
+        // 渲染卖出列表
+        function renderSellList() {
+            const sellList = document.getElementById('sell-list');
+            sellList.innerHTML = '';
+            
+            if (sellData.length === 0) {
+                sellList.innerHTML = '<div class="no-data">暂无卖出记录</div>';
+                return;
+            }
+            
+            sellData.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item trade-item';
+                li.dataset.id = item.id;
+                li.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>${item.date} ${item.time}</strong>
+                            <p class="mb-0">价格: ¥${item.price.toFixed(2)}</p>
+                            <p class="mb-0">数量: ${item.quantity}</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-primary">卖出</span>
+                        </div>
+                    </div>
+                `;
+                sellList.appendChild(li);
+            });
+        }
+        
+        // 初始化拖拽功能
+        function initSortable() {
+            // 买入列表拖拽
+            new Sortable(document.getElementById('buy-list'), {
+                animation: 150,
+                onEnd: function(evt) {
+                    updateMatches();
+                }
+            });
+            
+            // 卖出列表拖拽
+            new Sortable(document.getElementById('sell-list'), {
+                animation: 150,
+                onEnd: function(evt) {
+                    updateMatches();
+                }
+            });
+        }
+        
+        // 更新匹配关系
+        function updateMatches() {
+            const buyItems = document.querySelectorAll('#buy-list .trade-item');
+            const sellItems = document.querySelectorAll('#sell-list .trade-item');
+            
+            matches = [];
+            
+            // 按顺序匹配
+            for (let i = 0; i < Math.min(buyItems.length, sellItems.length); i++) {
+                const buyId = parseInt(buyItems[i].dataset.id);
+                const sellId = parseInt(sellItems[i].dataset.id);
+                
+                const buyItem = buyData.find(item => item.id === buyId);
+                const sellItem = sellData.find(item => item.id === sellId);
+                
+                if (buyItem && sellItem) {
+                    // 计算匹配数量（取最小值）
+                    const matchQuantity = Math.min(buyItem.quantity, sellItem.quantity);
+                    // 计算收益
+                    const profit = (sellItem.price - buyItem.price) * matchQuantity;
+                    
+                    matches.push({
+                        buy: buyItem,
+                        sell: sellItem,
+                        quantity: matchQuantity,
+                        profit: profit
+                    });
+                }
+            }
+            
+            renderMatchResults();
+        }
+        
+        // 渲染匹配结果
+        function renderMatchResults() {
+            const matchResults = document.getElementById('match-results');
+            matchResults.innerHTML = '';
+            
+            // 渲染匹配的记录（图2样式）
+            matches.forEach(match => {
+                const tr = document.createElement('tr');
+                const profitClass = match.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                
+                tr.innerHTML = `
+                    <td class="buy-cell">
+                        <div class="d-flex justify-content-between">
+                            <div><strong>${match.buy.date} ${match.buy.time}</strong></div>
+                            <div>¥${match.buy.price.toFixed(2)}</div>
+                        </div>
+                    </td>
+                    <td class="sell-cell">
+                        <div class="d-flex justify-content-between">
+                            <div><strong>${match.sell.date} ${match.sell.time}</strong></div>
+                            <div>¥${match.sell.price.toFixed(2)}</div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div>${match.quantity}股</div>
+                    </td>
+                    <td class="profit-cell ${profitClass}">
+                        <div>¥${match.profit.toFixed(2)}</div>
+                    </td>
+                `;
+                matchResults.appendChild(tr);
+            });
+            
+            // 渲染未匹配的卖出记录（图1样式）
+            const buyItems = document.querySelectorAll('#buy-list .trade-item');
+            const sellItems = document.querySelectorAll('#sell-list .trade-item');
+            
+            if (sellItems.length > buyItems.length) {
+                for (let i = buyItems.length; i < sellItems.length; i++) {
+                    const sellId = parseInt(sellItems[i].dataset.id);
+                    const sellItem = sellData.find(item => item.id === sellId);
+                    
+                    if (sellItem) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="buy-cell">
+                                <div class="no-match">未买回</div>
+                            </td>
+                            <td class="sell-cell">
+                                <div class="d-flex justify-content-between">
+                                    <div><strong>${sellItem.date} ${sellItem.time}</strong></div>
+                                    <div>¥${sellItem.price.toFixed(2)}</div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div>${sellItem.quantity}股</div>
+                            </td>
+                            <td class="profit-cell">
+                                <div>-</div>
+                            </td>
+                        `;
+                        matchResults.appendChild(tr);
+                    }
+                }
+            }
+            
+            // 计算总收益
+            const totalProfit = matches.reduce((sum, match) => sum + match.profit, 0);
+            const totalProfitElement = document.getElementById('total-profit');
+            const totalProfitClass = totalProfit >= 0 ? 'profit-positive' : 'profit-negative';
+            totalProfitElement.innerHTML = `总收益: <span class="${totalProfitClass}">¥${totalProfit.toFixed(2)}</span>`;
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

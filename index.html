@@ -71,6 +71,14 @@
             color: #333;
             font-size: 18px;
         }
+        h2 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        .stock-module {
+            margin-bottom: 30px;
+        }
         .buttons {
             margin-bottom: 20px;
             display: flex;
@@ -119,6 +127,10 @@
         }
         .refresh-btn {
             background-color: #ff9800;
+            color: white;
+        }
+        .import-export-btn {
+            background-color: #9c27b0;
             color: white;
         }
         /* 弹窗样式 */
@@ -191,7 +203,7 @@
         }
         table {
             width: 100%;
-            min-width: 1070px;
+            min-width: 550px;
             border-collapse: collapse;
         }
         th, td {
@@ -200,14 +212,11 @@
             text-align: left;
             white-space: nowrap;
         }
-        th:nth-child(1), td:nth-child(1) { width: 120px; }
-        th:nth-child(3), td:nth-child(3) { width: 90px; }
-        th:nth-child(4), td:nth-child(4) { width: 120px; }
-        th:nth-child(5), td:nth-child(5) { width: 100px; }
-        th:nth-child(6), td:nth-child(6) { width: 100px; }
-        th:nth-child(7), td:nth-child(7) { width: 100px; }
-        th:nth-child(8), td:nth-child(8) { width: 100px; }
-        th:nth-child(9), td:nth-child(9) { width: 100px; }
+        th:nth-child(1), td:nth-child(1) { width: 80px; }
+        th:nth-child(2), td:nth-child(2) { width: 80px; }
+        th:nth-child(3), td:nth-child(3) { width: 80px; }
+        th:nth-child(4), td:nth-child(4) { width: 250px; }
+        th:nth-child(5), td:nth-child(5) { width: 80px; }
         select {
             width: 100%;
             padding: 8px;
@@ -259,10 +268,137 @@
     <div class="container" id="app">
         <h1>首页</h1>
         
-       
+        <div class="stock-module">
+            <h2>我的股票</h2>
+            <div class="buttons">
+                <button class="add-btn" @click="addStockDirectly">添加股票</button>
+                <button class="save-btn" @click="saveStocks">保存股票</button>
+                <button class="refresh-btn" @click="loadStocks">刷新</button>
+                <button class="import-export-btn" @click="openImportExportModal">导入导出</button>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>股票名称</th>
+                            <th>股票代码</th>
+                            <th>操作数量</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(stock, index) in stocks" :key="index">
+                            <td><input v-model="stock.name" type="text" placeholder="股票名称"></td>
+                            <td><input v-model="stock.code" type="text" placeholder="股票代码"></td>
+                            <td><input v-model.number="stock.quantity" type="number" placeholder="操作数量"></td>
+                            <td><input v-model="stock.note" type="text" placeholder="备注"></td>
+                            <td>
+                                <button class="delete-btn" @click="deleteStock(index)">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 导入导出弹窗 -->
+        <div id="importExportModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>导入导出股票数据</h2>
+                </div>
+                <div class="form-group">
+                    <label for="backupData">备份数据</label>
+                    <textarea id="backupData" v-model="backupData" rows="15" placeholder="LocalStorage数据会自动显示在这里"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="save-btn" @click="importData">导入</button>
+                    <button class="close-btn" @click="closeImportExportModal">关闭</button>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
-     
+        new Vue({
+            el: '#app',
+            data: {
+                stocks: [],
+                backupData: ''
+            },
+            mounted() {
+                this.loadStocks();
+            },
+            methods: {
+                loadStocks() {
+                    const savedStocks = localStorage.getItem('myStocks');
+                    if (savedStocks) {
+                        this.stocks = JSON.parse(savedStocks);
+                    }
+                },
+                saveStocks() {
+                    localStorage.setItem('myStocks', JSON.stringify(this.stocks));
+                    alert('股票保存成功！');
+                },
+                addStockDirectly() {
+                    this.stocks.push({ 
+                        name: '', 
+                        code: '', 
+                        quantity: 200, 
+                        note: '' 
+                    });
+                },
+                deleteStock(index) {
+                    if (confirm('确定要删除这个股票吗？')) {
+                        this.stocks.splice(index, 1);
+                    }
+                },
+                openImportExportModal() {
+                    // 获取所有数据并整合到一个对象中
+                    const allData = {
+                        myStocks: this.stocks,
+                        tradingRecords: JSON.parse(localStorage.getItem('tradingRecords') || '[]'),
+                        tRecords: JSON.parse(localStorage.getItem('tRecords') || '[]')
+                    };
+                    // 将整合后的数据显示在文本框中
+                    this.backupData = JSON.stringify(allData, null, 2);
+                    // 显示弹窗
+                    document.getElementById('importExportModal').style.display = 'block';
+                },
+                importData() {
+                    try {
+                        const parsedData = JSON.parse(this.backupData);
+                        if (typeof parsedData === 'object' && parsedData !== null) {
+                            // 导入股票数据
+                            if (Array.isArray(parsedData.myStocks)) {
+                                this.stocks = parsedData.myStocks;
+                                localStorage.setItem('myStocks', JSON.stringify(parsedData.myStocks));
+                            }
+                            // 导入交易记录数据
+                            if (Array.isArray(parsedData.tradingRecords)) {
+                                localStorage.setItem('tradingRecords', JSON.stringify(parsedData.tradingRecords));
+                            }
+                            // 导入T记录数据
+                            if (Array.isArray(parsedData.tRecords)) {
+                                localStorage.setItem('tRecords', JSON.stringify(parsedData.tRecords));
+                            }
+                            alert('导入成功！');
+                        } else {
+                            alert('导入失败：数据格式不正确');
+                        }
+                    } catch (error) {
+                        alert('导入失败：数据格式不正确');
+                    }
+                },
+                closeImportExportModal() {
+                    // 清空备份数据
+                    this.backupData = '';
+                    // 隐藏弹窗
+                    document.getElementById('importExportModal').style.display = 'none';
+                }
+            }
+        });
     </script>
 </body>
 </html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>持仓股票7日涨跌分析报表</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+            padding: 30px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 30px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .header h1 {
+            font-size: 26px;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .header .time { color: #7f8c8d; font-size: 14px; }
+        .legend {
+            background: #fff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .legend strong { color: #3498db; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        th {
+            background: #f8f9fa;
+            padding: 16px 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+        }
+        td {
+            padding: 14px 12px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #f8f9fa; }
+        .stock-name { font-weight: 600; color: #2c3e50; }
+        .trend-up { color: #e74c3c; font-weight: 600; }
+        .trend-down { color: #27ae60; font-weight: 600; }
+        .gain { color: #e74c3c; font-weight: 500; }
+        .loss { color: #27ae60; font-weight: 500; }
+        .param {
+            background: #3498db;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 500;
+            font-size: 13px;
+        }
+        .tip {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: #fff;
+            border-left: 4px solid #3498db;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            color: #3498db;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        @media (max-width: 700px) {
+            body { padding: 15px; }
+            .header { padding: 20px; }
+            .header h1 { font-size: 22px; }
+            table { font-size: 13px; }
+            th, td { padding: 10px 6px; }
+            .param { padding: 5px 10px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 持仓股票7日涨跌分析报表</h1>
+            <div class="time">🕐 2026年4月17日 09:57:07</div>
+        </div>
+        <div class="legend">
+            <span>💹 <strong>趋势判断</strong>: DIF和DEA均在零轴下方 = 下跌趋势（适合反T）</span>
+            <span>📈 <strong>平均涨幅</strong>: 只统计正涨幅</span>
+            <span>📉 <strong>平均跌幅</strong>: 只统计负跌幅</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>股票</th><th>趋势</th><th>平均涨幅</th><th>平均跌幅</th><th>推荐反T参数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="stock-name">银之杰</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+7.08% (3天)</td>
+                    <td class="loss">-4.44% (4天)</td>
+                    <td><span class="param">卖+7.1% → 买-4.5%</span></td>
+                </tr>
+                <tr>
+                    <td class="stock-name">上海贝岭</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+1.82% (4天)</td>
+                    <td class="loss">-1.88% (3天)</td>
+                    <td><span class="param">卖+1.9% → 买-1.9%</span></td>
+                </tr>
+                <tr>
+                    <td class="stock-name">中兴通讯</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+2.16% (6天)</td>
+                    <td class="loss">-2.85% (1天)</td>
+                    <td><span class="param">卖+2.2% → 买-2.9%</span></td>
+                </tr>
+                <tr>
+                    <td class="stock-name">南大光电</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+2.57% (4天)</td>
+                    <td class="loss">-1.63% (3天)</td>
+                    <td><span class="param">卖+2.6% → 买-1.7%</span></td>
+                </tr>
+                <tr>
+                    <td class="stock-name">天风证券</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+2.67% (3天)</td>
+                    <td class="loss">-1.62% (4天)</td>
+                    <td><span class="param">卖+2.7% → 买-1.7%</span></td>
+                </tr>
+                <tr>
+                    <td class="stock-name">指南针</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+3.66% (4天)</td>
+                    <td class="loss">-3.23% (3天)</td>
+                    <td><span class="param">卖+3.7% → 买-3.3%</span></td>
+                </tr>
+                <tr>
+                    <td class="stock-name">楚天龙</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+1.79% (5天)</td>
+                    <td class="loss">-2.08% (2天)</td>
+                    <td><span class="param">卖+1.8% → 买-2.1%</span></td>
+                </tr>
+                <tr>
+                    <td class="stock-name">赢时胜</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+3.39% (4天)</td>
+                    <td class="loss">-3.40% (3天)</td>
+                    <td><span class="param">卖+3.4% → 买-3.5%</span></td>
+                </tr>
+                <tr>
+                    <td class="stock-name">酒鬼酒</td>
+                    <td class="trend-down">⬇ 下跌</td>
+                    <td class="gain">+1.93% (4天)</td>
+                    <td class="loss">-2.22% (3天)</td>
+                    <td><span class="param">卖+2.0% → 买-2.3%</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="tip">💡 反T操作提示: 下跌趋势中先卖后买，目标赚取日内波动差价</div>
+    </div>
+</body>
+</html>
