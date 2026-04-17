@@ -304,10 +304,20 @@
             <button class="refresh-btn" @click="refreshLatestPrices">刷新最新价</button>
             <button class="import-export-btn" @click="openImportExportModal">导入导出</button>
         </div>
-        <div class="filter">
+
+        <div class="filter" style="margin-left: 20px;">
+            <span>股票名称过滤：</span>
+            <select v-model="selectedStockName" style="padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                <option value="">所有股票</option>
+                <option v-for="stock in stocks" :key="stock.code" :value="stock.name">{{ stock.name }}</option>
+            </select>
+        </div>
+
+        <div class="filter" style="margin-left: 20px;">
             <span>隐藏卖出</span>
             <input type="checkbox" v-model="hideSoldRecords" />
         </div>
+        
         <div class="table-container">
             <table>
                 <thead>
@@ -330,7 +340,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(record, index) in records" :key="index" v-if="!hideSoldRecords || record.sellPrice <= 0">
+                    <tr v-for="(record, index) in filteredRecords" :key="index" v-if="!hideSoldRecords || record.sellPrice <= 0">
                     <td>
                         <select v-model="record.stockName" @change="updateStockCode(record)" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
                             <option value="">请选择股票</option>
@@ -381,6 +391,7 @@
                         <option value="跌10%补仓">跌%10补仓</option>
                         <option value="跌20%补仓">跌20%补仓</option>
                         <option value="跌30%补仓">跌30%补仓</option>
+                        <option value="做T">做T</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -438,6 +449,7 @@
                 },
                 backupData: '',
                 hideSoldRecords: true,
+                selectedStockName: '',
                 currentRecord: null,
                 stocks: [],
                 records: [
@@ -487,6 +499,14 @@
                         floatProfit: 0
                     }
                 ]
+            },
+            computed: {
+                filteredRecords() {
+                    if (!this.selectedStockName) {
+                        return this.records;
+                    }
+                    return this.records.filter(record => record.stockName === this.selectedStockName);
+                }
             },
             methods: {
                 loadStocks() {
