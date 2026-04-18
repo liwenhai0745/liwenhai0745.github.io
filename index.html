@@ -260,6 +260,7 @@
         <div class="nav-content">
             <a href="index.html" class="nav-item active">首页</a>
             <a href="trading-record.html" class="nav-item">交易记录</a>
+            <a href="t-report.html" class="nav-item">交易成就</a>
             <a href="t-record.html" class="nav-item ">T记录</a>
             <a href="t-money.html" class="nav-item">T资金管理</a>
             <a href="gold-record.html" class="nav-item">黄金交易记录</a>
@@ -359,7 +360,8 @@
                     const allData = {
                         myStocks: this.stocks,
                         tradingRecords: JSON.parse(localStorage.getItem('tradingRecords') || '[]'),
-                        tRecords: JSON.parse(localStorage.getItem('tRecords') || '[]')
+                        tRecords: JSON.parse(localStorage.getItem('tRecords') || '[]'),
+                        tReportRecords: JSON.parse(localStorage.getItem('tReportRecords') || '[]')
                     };
                     // 将整合后的数据显示在文本框中
                     this.backupData = JSON.stringify(allData, null, 2);
@@ -382,6 +384,10 @@
                             // 导入T记录数据
                             if (Array.isArray(parsedData.tRecords)) {
                                 localStorage.setItem('tRecords', JSON.stringify(parsedData.tRecords));
+                            }
+                            // 导入T报告记录数据
+                            if (Array.isArray(parsedData.tReportRecords)) {
+                                localStorage.setItem('tReportRecords', JSON.stringify(parsedData.tReportRecords));
                             }
                             alert('导入成功！');
                         } else {

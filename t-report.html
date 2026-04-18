@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>成就展示</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            background-color: #f5f5f5;
+            font-size: 14px;
+        }
+
+        .nav-bar {
+            background-color: white;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            padding: 0 15px;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .nav-item.active {
+            color: #2196F3;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .add-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 4px 8px;
+            font-size: 10px;
+            min-width: 60px;
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            height: 400px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1100px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:nth-child(3n+2) {
+            background-color: #ffe6e6;
+        }
+
+        tr:nth-child(3n+3) {
+            background-color: #e6ffe6;
+        }
+
+        .profit-row-positive {
+            background-color: #ffe6e6;
+        }
+
+        .profit-row-negative {
+            background-color: #e6ffe6;
+        }
+
+        .profit-positive {
+            color: green;
+        }
+
+        .profit-negative {
+            color: red;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-footer button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .save-btn {
+            background-color: #4CAF50;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .close-btn {
+            background-color: #999;
+            color: white;
+        }
+
+        /* 日历热力图样式 */
+        .calendar-container {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2px;
+            flex-grow: 1;
+        }
+
+        .calendar-day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            font-size: 8px;
+            cursor: default;
+            position: relative;
+            padding: 2px;
+        }
+
+        .calendar-day.has-data {
+            cursor: pointer;
+        }
+
+        .calendar-day:hover {
+            opacity: 0.8;
+        }
+
+        .calendar-day-label {
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            background-color: #f2f2f2;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="nav-bar">
+        <div class="nav-content">
+            <a href="index.html" class="nav-item">首页</a>
+            <a href="trading-record.html" class="nav-item">交易记录</a>
+            <a href="t-report.html" class="nav-item active">交易成就</a>
+            <a href="t-record.html" class="nav-item">T记录</a>
+            <a href="t-money.html" class="nav-item">T资金管理</a>
+            <a href="gold-record.html" class="nav-item">黄金交易记录</a>
+        </div>
+    </div>
+    <div class="container" id="app">
+        <h1>成就展示</h1>
+
+
+        <!-- 日历热力图 -->
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <h3>盈利日历热力图</h3>
+                <div>
+                    <button @click="prevMonth">&lt; 上月</button>
+                    <span style="margin: 0 10px;">{{ currentYear }}年{{ currentMonth + 1 }}月</span>
+                    <button @click="nextMonth">下月 &gt;</button>
+                </div>
+            </div>
+            <div class="calendar-grid">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%;"
+                    v-for="day in ['日','一','二','三','四','五','六']" class="calendar-day-label">{{ day }}</div>
+                <div v-for="day in calendarDays" :key="day.date"
+                    :class="['calendar-day', { 'has-data': day.profit !== undefined }]"
+                    :style="{ backgroundColor: getHeatColor(day.profit) }" @mouseover="showDayInfo(day)">
+                    <div v-if="day.day"
+                        style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                        <div style="font-size: 12px; font-weight: bold;">{{ day.day }}</div>
+                        <div v-if="day.profit !== undefined && day.profit !== 0"
+                            :style="{ fontSize: '15px', marginTop:'5px', fontWeight: 'bold', color: '#ff2d5d' }">{{
+                            day.profit }}</div>
+                    </div>
+                    <div v-else>&nbsp;</div>
+                </div>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ebedf0;"></div>
+                    <span>无数据</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ffccd5;"></div>
+                    <span>低盈利</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ff9aa2;"></div>
+                    <span>中盈利</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ff6b7f;"></div>
+                    <span>高盈利</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #ff2d5d;"></div>
+                    <span>极高盈利</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #cc0000;"></div>
+                    <span>亏损</span>
+                </div>
+            </div>
+        </div>
+
+
+                <div class="buttons">
+            <button class="add-btn" @click="addRecord">添加记录</button>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>股票名称</th>
+                        <th>盈利金额</th>
+                        <th>盈利日期</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(record, index) in records" :key="index">
+                        <td>{{ record.stockName }}</td>
+                        <td :class="record.profit >= 0 ? 'profit-positive' : 'profit-negative'">{{ record.profit }}</td>
+                        <td>{{ record.profitDate }}</td>
+                        <td>{{ record.note }}</td>
+                        <td>
+                            <button class="delete-btn" @click="deleteRecord(index)">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="profitChart"></canvas>
+        </div>
+
+
+
+        <!-- 添加记录弹窗 -->
+        <div id="addModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>添加记录</h2>
+                </div>
+                <div class="form-group">
+                    <label for="stockName">股票名称</label>
+                    <input type="text" v-model="newRecord.stockName" placeholder="请输入股票名称" />
+                </div>
+                <div class="form-group">
+                    <label for="profit">盈利金额</label>
+                    <input type="number" v-model.number="newRecord.profit" step="0.01" placeholder="请输入盈利金额" />
+                </div>
+                <div class="form-group">
+                    <label for="profitDate">盈利日期</label>
+                    <input type="date" v-model="newRecord.profitDate" />
+                </div>
+                <div class="form-group">
+                    <label for="note">备注</label>
+                    <input type="text" v-model="newRecord.note" placeholder="请输入备注信息" />
+                </div>
+                <div class="modal-footer">
+                    <button class="save-btn" @click="saveNewRecord">保存</button>
+                    <button class="close-btn" @click="closeAddModal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                records: [
+                    { stockName: '招商银行', profit: 1500.50, profitDate: '2026-04-01', note: '首次投资' },
+                    { stockName: '贵州茅台', profit: 2300.00, profitDate: '2026-04-01', note: '高端白酒投资' },
+                    { stockName: '平安银行', profit: -800.25, profitDate: '2026-04-02', note: '止损离场' },
+                    { stockName: '五粮液', profit: 3200.75, profitDate: '2026-04-02', note: '成功抄底' },
+                    { stockName: '万科A', profit: 1200.00, profitDate: '2026-04-03', note: '房地产板块' }
+                ],
+                newRecord: {
+                    stockName: '',
+                    profit: 0,
+                    profitDate: '',
+                    note: ''
+                },
+                chart: null,
+                currentMonth: new Date().getMonth(),
+                currentYear: new Date().getFullYear()
+            },
+            computed: {
+                groupedData() {
+                    const grouped = {};
+                    this.records.forEach(record => {
+                        const date = record.profitDate;
+                        if (!grouped[date]) {
+                            grouped[date] = 0;
+                        }
+                        grouped[date] += record.profit;
+                    });
+
+                    // 按日期排序
+                    const sortedDates = Object.keys(grouped).sort();
+                    const labels = sortedDates;
+                    const data = sortedDates.map(date => grouped[date]);
+
+                    return { labels, data };
+                },
+                calendarDays() {
+                    // 计算当月的天数
+                    const daysInMonth = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+                    // 当月第一天是星期几
+                    const firstDayOfWeek = new Date(this.currentYear, this.currentMonth, 1).getDay();
+
+                    // 获取按日期分组的盈利数据
+                    const grouped = {};
+                    this.records.forEach(record => {
+                        const date = record.profitDate;
+                        if (!grouped[date]) {
+                            grouped[date] = 0;
+                        }
+                        grouped[date] += record.profit;
+                    });
+
+                    const days = [];
+
+                    // 添加空白单元格（上个月的最后几天）
+                    for (let i = 0; i < firstDayOfWeek; i++) {
+                        days.push({ day: null, date: null });
+                    }
+
+                    // 添加当月的每一天
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const dateStr = `${this.currentYear}-${String(this.currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        days.push({
+                            day: day,
+                            date: dateStr,
+                            profit: grouped[dateStr] || 0
+                        });
+                    }
+
+                    return days;
+                }
+            },
+            methods: {
+                addRecord() {
+                    // 设置默认日期为今天
+                    this.newRecord.profitDate = new Date().toISOString().split('T')[0];
+                    document.getElementById('addModal').style.display = 'block';
+                },
+                saveNewRecord() {
+                    if (this.newRecord.stockName && this.newRecord.profit && this.newRecord.profitDate) {
+                        this.records.push({ ...this.newRecord });
+                        this.newRecord = { stockName: '', profit: 0, profitDate: '', note: '' };
+                        this.closeAddModal();
+                        this.updateChart(); // 更新图表
+                        this.saveToLocalStorage(); // 保存到本地存储
+                    } else {
+                        alert('请填写完整信息');
+                    }
+                },
+                saveToLocalStorage() {
+                    localStorage.setItem('tReportRecords', JSON.stringify(this.records));
+                },
+                loadFromLocalStorage() {
+                    const saved = localStorage.getItem('tReportRecords');
+                    if (saved) {
+                        this.records = JSON.parse(saved);
+                    }
+                },
+                closeAddModal() {
+                    document.getElementById('addModal').style.display = 'none';
+                    this.newRecord = { stockName: '', profit: 0, profitDate: '', note: '' };
+                },
+                deleteRecord(index) {
+                    if (confirm('确定要删除这条记录吗？')) {
+                        this.records.splice(index, 1);
+                        this.updateChart(); // 更新图表
+                        this.saveToLocalStorage(); // 保存到本地存储
+                    }
+                },
+                updateChart() {
+                    this.$nextTick(() => {
+                        const ctx = document.getElementById('profitChart').getContext('2d');
+
+                        // 销毁之前的图表实例
+                        if (this.chart) {
+                            this.chart.destroy();
+                        }
+
+                        const { labels, data } = this.groupedData;
+
+                        this.chart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: '每日盈利合计',
+                                    data: data,
+                                    backgroundColor: labels.map(date => {
+                                        // 统一使用浅红色
+                                        return 'rgba(255, 182, 193, 0.6)'; // 浅红色
+                                    }),
+                                    borderColor: labels.map(date => {
+                                        return 'rgba(255, 182, 193, 1)'; // 浅红色
+                                    }),
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        title: {
+                                            display: true,
+                                            text: '盈利金额'
+                                        }
+                                    },
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: '日期'
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top'
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function (context) {
+                                                return `盈利: ${context.parsed.y}`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                },
+                prevMonth() {
+                    if (this.currentMonth === 0) {
+                        this.currentMonth = 11;
+                        this.currentYear--;
+                    } else {
+                        this.currentMonth--;
+                    }
+                },
+                nextMonth() {
+                    if (this.currentMonth === 11) {
+                        this.currentMonth = 0;
+                        this.currentYear++;
+                    } else {
+                        this.currentMonth++;
+                    }
+                },
+                getHeatColor(profit) {
+                    if (profit === undefined) {
+                        return '#ebedf0'; // 没有数据的日期
+                    }
+
+                    // 统一使用红色系，区分盈利和亏损
+                    if (profit < 0) {
+                        // 亏损用红色
+                        return '#ff6b7f';
+                    } else {
+                        // 盈利用浅红色
+                        return '#ffccd5';
+                    }
+                },
+                showDayInfo(day) {
+                    if (day.profit !== undefined) {
+                        // 可以在这里显示日期详情
+                        console.log(`${day.date}: 盈利 ${day.profit}`);
+                    }
+                }
+            },
+            mounted() {
+                this.loadFromLocalStorage(); // 从本地存储加载数据
+                // 初始化图表
+                this.updateChart();
+            },
+            watch: {
+                records: {
+                    handler() {
+                        this.updateChart();
+                    },
+                    deep: true
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -89,6 +89,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         button {
@@ -402,6 +403,7 @@
         <div class="nav-content">
             <a href="index.html" class="nav-item">首页</a>
             <a href="trading-record.html" class="nav-item active">交易记录</a>
+            <a href="t-report.html" class="nav-item">交易成就</a>
             <a href="t-record.html" class="nav-item">T记录</a>
             <a href="t-money.html" class="nav-item">T资金管理</a>
             <a href="gold-record.html" class="nav-item">黄金交易记录</a>
@@ -533,6 +535,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="save-btn" @click="saveEdit">保存</button>
+                    <button class="import-export-btn" @click="pushToTReport">推送T报表</button>
                     <button class="close-btn" @click="closeModal">关闭</button>
                 </div>
             </div>
@@ -855,6 +858,56 @@
                     this.currentRecord = null;
                     // 隐藏弹窗
                     document.getElementById('editModal').style.display = 'none';
+                },
+                pushToTReport() {
+                    // 检查S时间和S价格是否为空
+                    if (!this.editRecordData.sTime || !this.editRecordData.sellPrice) {
+                        alert('S时间和S价格不能为空');
+                        return;
+                    }
+                    
+                    // 构建备注字段
+                    let note = '';
+                    const bTime = this.currentRecord.bTime;
+                    const sTime = this.editRecordData.sTime;
+                    const profit = this.currentRecord.profit;
+                    
+                    if (bTime === sTime) {
+                        // 当日T
+                        note = `当日T，盈利${profit}元`;
+                    } else {
+                        // 隔日T，计算持仓天数
+                        const bDate = new Date(bTime);
+                        const sDate = new Date(sTime);
+                        const diffTime = Math.abs(sDate - bDate);
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        // 格式化日期显示
+                        const formattedBTime = bTime.substring(5); // 只显示月-日
+                        const formattedSTime = sTime.substring(5); // 只显示月-日
+                        
+                        note = `隔日T，${formattedBTime}到${formattedSTime}，持仓${diffDays}天，盈利${profit}元`;
+                    }
+                    
+                    // 构建T报表记录
+                    const tReportRecord = {
+                        stockName: this.currentRecord.stockName,
+                        profit: profit,
+                        profitDate: sTime,
+                        note: note
+                    };
+                    
+                    // 从localStorage加载tReportRecords
+                    let tReportRecords = JSON.parse(localStorage.getItem('tReportRecords') || '[]');
+                    
+                    // 添加新记录
+                    tReportRecords.push(tReportRecord);
+                    
+                    // 保存回localStorage
+                    localStorage.setItem('tReportRecords', JSON.stringify(tReportRecords));
+                    
+                    alert('推送T报表成功！');
+                    this.closeModal();
                 },
                 getStockPriceFromModal() {
                     if (this.currentRecord) {
