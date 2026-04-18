@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,18 +12,21 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: Arial, sans-serif;
             padding: 10px;
             background-color: #f5f5f5;
             font-size: 14px;
         }
+
         .nav-bar {
             background-color: white;
             padding: 10px 0;
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .nav-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -30,6 +34,7 @@
             gap: 20px;
             padding: 0 15px;
         }
+
         .nav-item {
             text-decoration: none;
             color: #333;
@@ -38,45 +43,54 @@
             border-radius: 4px;
             transition: background-color 0.3s;
         }
+
         .nav-item:hover {
             background-color: #f0f0f0;
         }
+
         .nav-item.active {
             color: #2196F3;
             font-weight: bold;
         }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background-color: white;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
         }
+
         .table-container::-webkit-scrollbar {
             height: 6px;
         }
+
         .table-container::-webkit-scrollbar-thumb {
             background-color: #ccc;
             border-radius: 3px;
         }
+
         h1 {
             text-align: center;
             margin-bottom: 20px;
             color: #333;
             font-size: 18px;
         }
+
         .buttons {
             margin-bottom: 20px;
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
+
         button {
             padding: 12px 24px;
             border: none;
@@ -86,14 +100,17 @@
             flex: 1;
             min-width: 120px;
         }
+
         .add-btn {
             background-color: #4CAF50;
             color: white;
         }
+
         .save-btn {
             background-color: #2196F3;
             color: white;
         }
+
         .delete-btn {
             background-color: #f44336;
             color: white;
@@ -101,6 +118,7 @@
             font-size: 10px;
             min-width: 60px;
         }
+
         .edit-btn {
             background-color: #2196F3;
             color: white;
@@ -109,6 +127,7 @@
             min-width: 60px;
             margin-right: 5px;
         }
+
         .copy-btn {
             background-color: #4CAF50;
             color: white;
@@ -117,14 +136,17 @@
             min-width: 60px;
             margin-right: 5px;
         }
+
         .refresh-btn {
             background-color: #ff9800;
             color: white;
         }
+
         .import-export-btn {
             background-color: #9c27b0;
             color: white;
         }
+
         /* 筛选选项样式 */
         .filter {
             display: inline-block;
@@ -132,15 +154,18 @@
             font-size: 14px;
             white-space: nowrap;
         }
+
         .filter label {
             display: inline-flex;
             align-items: center;
             cursor: pointer;
             white-space: nowrap;
         }
+
         .filter input[type="checkbox"] {
             margin-left: 5px;
         }
+
         /* 编辑弹窗中的下拉框样式 */
         .form-group select {
             width: 100%;
@@ -151,11 +176,13 @@
             font-size: 14px;
             box-sizing: border-box;
         }
+
         .form-group select:focus {
             outline: none;
             border-color: #2196F3;
             box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
         }
+
         /* 弹窗样式 */
         .modal {
             display: none;
@@ -166,8 +193,9 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
         }
+
         .modal-content {
             background-color: #fefefe;
             margin: 15% auto;
@@ -177,21 +205,26 @@
             max-width: 600px;
             border-radius: 8px;
         }
+
         .modal-header {
             margin-bottom: 20px;
         }
+
         .modal-header h2 {
             margin: 0;
             color: #333;
         }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
+
         .form-group input,
         .form-group textarea {
             width: 100%;
@@ -200,14 +233,17 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
+
         .form-group textarea {
             height: 100px;
             resize: vertical;
         }
+
         .modal-footer {
             margin-top: 20px;
             text-align: right;
         }
+
         .modal-footer button {
             padding: 8px 16px;
             border: none;
@@ -215,61 +251,133 @@
             cursor: pointer;
             font-size: 14px;
         }
+
         .save-btn {
             background-color: #4CAF50;
             color: white;
             margin-right: 10px;
         }
+
         .close-btn {
             background-color: #999;
             color: white;
         }
+
         table {
             width: 100%;
             min-width: 1100px;
             border-collapse: collapse;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
             white-space: nowrap;
         }
-        th:nth-child(1), td:nth-child(1) { width: 120px; }
-        th:nth-child(2), td:nth-child(2) { width: 280px; }
-        th:nth-child(3), td:nth-child(3) { width: 70px; }
-        th:nth-child(4), td:nth-child(4) { width: 120px; }
-        th:nth-child(5), td:nth-child(5) { width: 300px; }
-        th:nth-child(6), td:nth-child(6) { width: 80px; }
-        th:nth-child(7), td:nth-child(7) { width: 90px; }
-        th:nth-child(8), td:nth-child(8) { width: 90px; }
-        th:nth-child(9), td:nth-child(9) { width: 80px; }
-        th:nth-child(10), td:nth-child(10) { width: 90px; }
-        th:nth-child(11), td:nth-child(11) { width: 300px; }
-        th:nth-child(12), td:nth-child(12) { width: 70px; }
-        th:nth-child(13), td:nth-child(13) { width: 70px; }
-        th:nth-child(14), td:nth-child(14) { width: 100px; }
-        th:nth-child(15), td:nth-child(15) { width: 80px; }
+
+        th:nth-child(1),
+        td:nth-child(1) {
+            width: 120px;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+            width: 280px;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3) {
+            width: 70px;
+        }
+
+        th:nth-child(4),
+        td:nth-child(4) {
+            width: 120px;
+        }
+
+        th:nth-child(5),
+        td:nth-child(5) {
+            width: 300px;
+        }
+
+        th:nth-child(6),
+        td:nth-child(6) {
+            width: 80px;
+        }
+
+        th:nth-child(7),
+        td:nth-child(7) {
+            width: 90px;
+        }
+
+        th:nth-child(8),
+        td:nth-child(8) {
+            width: 90px;
+        }
+
+        th:nth-child(9),
+        td:nth-child(9) {
+            width: 80px;
+        }
+
+        th:nth-child(10),
+        td:nth-child(10) {
+            width: 90px;
+        }
+
+        th:nth-child(11),
+        td:nth-child(11) {
+            width: 300px;
+        }
+
+        th:nth-child(12),
+        td:nth-child(12) {
+            width: 70px;
+        }
+
+        th:nth-child(13),
+        td:nth-child(13) {
+            width: 70px;
+        }
+
+        th:nth-child(14),
+        td:nth-child(14) {
+            width: 100px;
+        }
+
+        th:nth-child(15),
+        td:nth-child(15) {
+            width: 80px;
+        }
+
         th {
             background-color: #f2f2f2;
             font-weight: bold;
             font-size: 14px;
         }
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         tr:nth-child(3n+2) {
             background-color: #ffe6e6;
         }
+
         tr:nth-child(3n+3) {
             background-color: #e6ffe6;
         }
+
         .profit-row-positive {
             background-color: #ffe6e6;
         }
+
         .profit-row-negative {
             background-color: #e6ffe6;
         }
+
         input {
             width: 100%;
             padding: 8px;
@@ -278,14 +386,17 @@
             font-size: 14px;
             box-sizing: border-box;
         }
+
         .profit-negative {
             color: red;
         }
+
         .profit-positive {
             color: green;
         }
     </style>
 </head>
+
 <body>
     <div class="nav-bar">
         <div class="nav-content">
@@ -307,7 +418,8 @@
 
         <div class="filter" style="margin-left: 20px;">
             <span>股票名称过滤：</span>
-            <select v-model="selectedStockName" style="padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+            <select v-model="selectedStockName"
+                style="padding: 4px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
                 <option value="">所有股票</option>
                 <option v-for="stock in stocks" :key="stock.code" :value="stock.name">{{ stock.name }}</option>
             </select>
@@ -317,59 +429,67 @@
             <span>隐藏卖出</span>
             <input type="checkbox" v-model="hideSoldRecords" />
         </div>
-        
+
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                    <th>股票名称</th>
-                    <th style="display: none;">股票代码</th>
-                    <th>浮盈</th>
-                    <th>交易类型</th>
-                    <th style="display: none;">B备注</th>
-                    <th>B时间</th>
-                    <th>成交价格</th>
-                    <th>操作数量</th>
-                    <th style="display: none;">S时间</th>
-                    <th style="display: none;">卖出价格</th>
-                    <th style="display: none;">S备注</th>
-                    <th>收益</th>
-                    <th>当前价</th>
-                    <th>当前涨跌幅</th>
-                    <th>操作</th>
-                </tr>
+                        <th>股票名称</th>
+                        <th style="display: none;">股票代码</th>
+                        <th>浮盈</th>
+                        <th>交易类型</th>
+                        <th style="display: none;">B备注</th>
+                        <th>B时间</th>
+                        <th>成交价格</th>
+                        <th>操作数量</th>
+                        <th style="display: none;">S时间</th>
+                        <th style="display: none;">卖出价格</th>
+                        <th style="display: none;">S备注</th>
+                        <th>收益</th>
+                        <th>当前价</th>
+                        <th>当前涨跌幅</th>
+                        <th>操作</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(record, index) in filteredRecords" :key="index" v-if="!hideSoldRecords || record.sellPrice <= 0">
-                    <td>
-                        <select v-model="record.stockName" @change="updateStockCode(record)" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
-                            <option value="">请选择股票</option>
-                            <option v-for="stock in stocks" :key="stock.code" :value="stock.name">{{ stock.name }}</option>
-                        </select>
-                    </td>
-                    <td style="display: none;"><input v-model="record.stockCode" @input="getStockPrice(record)" /></td>
-                    <td :class="record.floatProfit > 0.1 ? 'profit-negative' : 'profit-positive'">
-                        {{ record.floatProfit }}
-                    </td>
-                    <td>{{ record.tradeType || '请选择' }}</td>
-                    <td style="display: none;"><input v-model="record.bNote" maxlength="300" /></td>
-                    <td><input type="date" v-model="record.bTime" /></td>
-                    <td><input v-model.number="record.price" @input="calculateProfit(record); calculateFloatProfit(record); calculateChangePercent(record)" /></td>
-                    <td><input v-model.number="record.quantity" @input="calculateProfit(record); calculateFloatProfit(record)" /></td>
-                    <td style="display: none;"><input type="date" v-model="record.sTime" /></td>
-                    <td style="display: none;"><input v-model.number="record.sellPrice" @input="setSTime(record); calculateProfit(record); calculateFloatProfit(record)" /></td>
-                    <td style="display: none;"><input v-model="record.sNote" maxlength="300" /></td>
-                    <td :class="record.profit > 0.1 ? 'profit-negative' : 'profit-positive'">
-                        {{ record.profit }}
-                    </td>
-                    <td>{{ record.currentPrice }}</td>
-                    <td>{{ record.currentChangePercent }}%</td>
-                    <td>
-                        <button class="edit-btn" @click="editRecord(record)">编辑</button>
-                        <button class="copy-btn" @click="copyRecord(record, index)">复制</button>
-                        <button class="delete-btn" @click="deleteRecord(index)">删除</button>
-                    </td>
-                </tr>
+                    <tr v-for="(record, index) in filteredRecords" :key="index"
+                        v-if="!hideSoldRecords || record.sellPrice <= 0">
+                        <td>
+                            <select v-model="record.stockName" @change="updateStockCode(record)"
+                                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box;">
+                                <option value="">请选择股票</option>
+                                <option v-for="stock in stocks" :key="stock.code" :value="stock.name">{{ stock.name }}
+                                </option>
+                            </select>
+                        </td>
+                        <td style="display: none;"><input v-model="record.stockCode" @input="getStockPrice(record)" />
+                        </td>
+                        <td :class="record.floatProfit > 0.1 ? 'profit-negative' : 'profit-positive'">
+                            {{ record.floatProfit }}
+                        </td>
+                        <td>{{ record.tradeType || '请选择' }}</td>
+                        <td style="display: none;"><input v-model="record.bNote" maxlength="300" /></td>
+                        <td><input type="date" v-model="record.bTime" /></td>
+                        <td><input v-model.number="record.price"
+                                @input="calculateProfit(record); calculateFloatProfit(record); calculateChangePercent(record)" />
+                        </td>
+                        <td><input v-model.number="record.quantity"
+                                @input="calculateProfit(record); calculateFloatProfit(record)" /></td>
+                        <td style="display: none;"><input type="date" v-model="record.sTime" /></td>
+                        <td style="display: none;"><input v-model.number="record.sellPrice"
+                                @input="setSTime(record); calculateProfit(record); calculateFloatProfit(record)" /></td>
+                        <td style="display: none;"><input v-model="record.sNote" maxlength="300" /></td>
+                        <td :class="record.profit > 0.1 ? 'profit-negative' : 'profit-positive'">
+                            {{ record.profit }}
+                        </td>
+                        <td>{{ record.currentPrice }}</td>
+                        <td>{{ record.currentChangePercent }}%</td>
+                        <td>
+                            <button class="edit-btn" @click="editRecord(record)">编辑</button>
+                            <button class="copy-btn" @click="copyRecord(record, index)">复制</button>
+                            <button class="delete-btn" @click="deleteRecord(index)">删除</button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -388,7 +508,7 @@
                     <select v-model="editRecordData.tradeType" class="trade-type-select">
                         <option value="">请选择</option>
                         <option value="建仓">建仓</option>
-                        <option value="跌10%补仓">跌%10补仓</option>
+                        <option value="跌10%补仓">跌10%补仓</option>
                         <option value="跌20%补仓">跌20%补仓</option>
                         <option value="跌30%补仓">跌30%补仓</option>
                         <option value="做T">做T</option>
@@ -400,7 +520,8 @@
                 </div>
                 <div class="form-group">
                     <label for="sellPrice">卖出价格</label>
-                    <input type="number" v-model.number="editRecordData.sellPrice" step="0.01" @input="setSTimeFromModal" />
+                    <input type="number" v-model.number="editRecordData.sellPrice" step="0.01"
+                        @input="setSTimeFromModal" />
                 </div>
                 <div class="form-group">
                     <label for="bNote">B备注</label>
@@ -424,7 +545,8 @@
                 </div>
                 <div class="form-group">
                     <label for="backupData">备份数据</label>
-                    <textarea id="backupData" v-model="backupData" rows="15" placeholder="LocalStorage数据会自动显示在这里"></textarea>
+                    <textarea id="backupData" v-model="backupData" rows="15"
+                        placeholder="LocalStorage数据会自动显示在这里"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button class="save-btn" @click="importData">导入</button>
@@ -562,11 +684,17 @@
                     }
                 },
                 calculateChangePercent(record) {
-                    if (record.currentPrice && record.price && !isNaN(record.currentPrice) && !isNaN(record.price)) {
-                        record.currentChangePercent = parseFloat((((record.currentPrice - record.price) / record.price) * 100).toFixed(2));
-                    } else if (record.currentChangePercent !== 0) {
-                        record.currentChangePercent = 0;
+                    if (record.sellPrice) {
+                        record.currentChangePercent = parseFloat((((record.sellPrice - record.price) / record.price) * 100).toFixed(2));
+                    } else {
+                        if (record.currentPrice && record.price && !isNaN(record.currentPrice) && !isNaN(record.price)) {
+                            record.currentChangePercent = parseFloat((((record.currentPrice - record.price) / record.price) * 100).toFixed(2));
+                        } else if (record.currentChangePercent !== 0) {
+                            record.currentChangePercent = 0;
+                        }
+
                     }
+
                 },
                 setSTime(record) {
                     // 当录入卖出价格时，将S时间设置为今天的日期
@@ -583,7 +711,7 @@
                 getStockPrice(record) {
                     const stockCode = record.stockCode;
                     if (!stockCode) return;
-                    
+
                     // 防抖处理，避免频繁请求
                     clearTimeout(this.priceTimer);
                     this.priceTimer = setTimeout(() => {
@@ -592,7 +720,7 @@
                         if (!code.startsWith('sz') && !code.startsWith('sh')) {
                             code = 'sz' + code; // 默认使用深圳市场
                         }
-                        
+
                         fetch(`https://qt.gtimg.cn/q=${code}`)
                             .then(response => response.text())
                             .then(data => {
@@ -738,7 +866,7 @@
                     // 收集唯一的股票代码
                     const uniqueStockCodes = new Set();
                     const recordsByCode = {};
-                    
+
                     // 遍历记录，按股票代码分组
                     this.records.forEach((record, index) => {
                         if (record.stockCode) {
@@ -749,7 +877,7 @@
                             uniqueStockCodes.add(record.stockCode);
                         }
                     });
-                    
+
                     // 为每个唯一的股票代码获取价格
                     uniqueStockCodes.forEach(stockCode => {
                         this.getStockPriceForRefresh(stockCode, recordsByCode[stockCode]);
@@ -761,7 +889,7 @@
                     if (!code.startsWith('sz') && !code.startsWith('sh')) {
                         code = 'sz' + code; // 默认使用深圳市场
                     }
-                    
+
                     fetch(`https://qt.gtimg.cn/q=${code}`)
                         .then(response => response.text())
                         .then(data => {
@@ -771,7 +899,7 @@
                                 const stockData = match[2].split('~');
                                 if (stockData.length > 3) {
                                     const currentPrice = parseFloat(stockData[3]);
-                                    
+
                                     // 更新所有使用相同股票代码的记录
                                     records.forEach(record => {
                                         this.$set(record, 'currentPrice', currentPrice);
@@ -810,4 +938,5 @@
         });
     </script>
 </body>
+
 </html>
